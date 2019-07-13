@@ -1,0 +1,108 @@
+# cmake_minimum_required(VERSION <specify CMake version here>)
+project(MTProxy_master)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(.)
+include_directories(MTProxy-master)
+include_directories(common)
+include_directories(crypto)
+include_directories(engine)
+include_directories(jobs)
+include_directories(mtproto)
+include_directories(net)
+include_directories(vv)
+
+add_executable(MTProxy_master
+        common/common-stats.c
+        common/common-stats.h
+        common/cpuid.c
+        common/cpuid.h
+        common/crc32.c
+        common/crc32.h
+        common/crc32c.c
+        common/crc32c.h
+        common/kprintf.c
+        common/kprintf.h
+        common/md5.c
+        common/md5.h
+        common/mp-queue.c
+        common/mp-queue.h
+        common/parse-config.c
+        common/parse-config.h
+        common/pid.c
+        common/pid.h
+        common/precise-time.c
+        common/precise-time.h
+        common/proc-stat.c
+        common/proc-stat.h
+        common/resolver.c
+        common/resolver.h
+        common/rpc-const.h
+        common/server-functions.c
+        common/server-functions.h
+        common/sha1.c
+        common/sha1.h
+        common/sha256.c
+        common/sha256.h
+        common/tl-parse.c
+        common/tl-parse.h
+        crypto/aesni256.c
+        crypto/aesni256.h
+        engine/engine-net.c
+        engine/engine-net.h
+        engine/engine-rpc-common.c
+        engine/engine-rpc-common.h
+        engine/engine-rpc.c
+        engine/engine-rpc.h
+        engine/engine-signals.c
+        engine/engine-signals.h
+        engine/engine.c
+        engine/engine.h
+        jobs/jobs.c
+        jobs/jobs.h
+        mtproto/mtproto-common.h
+        mtproto/mtproto-config.c
+        mtproto/mtproto-config.h
+        mtproto/mtproto-proxy.c
+        net/net-config.c
+        net/net-config.h
+        net/net-connections.c
+        net/net-connections.h
+        net/net-crypto-aes.c
+        net/net-crypto-aes.h
+        net/net-crypto-dh.c
+        net/net-crypto-dh.h
+        net/net-events.c
+        net/net-events.h
+        net/net-http-server.c
+        net/net-http-server.h
+        net/net-msg-buffers.c
+        net/net-msg-buffers.h
+        net/net-msg.c
+        net/net-msg.h
+        net/net-rpc-targets.c
+        net/net-rpc-targets.h
+        net/net-stats.c
+        net/net-tcp-connections.c
+        net/net-tcp-connections.h
+        net/net-tcp-rpc-client.c
+        net/net-tcp-rpc-client.h
+        net/net-tcp-rpc-common.c
+        net/net-tcp-rpc-common.h
+        net/net-tcp-rpc-ext-server.c
+        net/net-tcp-rpc-ext-server.h
+        net/net-tcp-rpc-server.c
+        net/net-tcp-rpc-server.h
+        net/net-thread.c
+        net/net-thread.h
+        net/net-timers.c
+        net/net-timers.h
+        vv/vv-io.h
+        vv/vv-tree.c
+        vv/vv-tree.h
+        .gitignore
+        GPLv2
+        LGPLv2
+        Makefile
+        README.md)
