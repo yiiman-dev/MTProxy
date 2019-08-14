@@ -1152,7 +1152,7 @@ unsigned parse_text_ipv4 (char *str) {
   return (a << 24) | (b << 16) | (c << 8) | d;
 }
 
-int parse_text_ipv6 (unsigned char ip[900], const char *str) {//tokapps from 16 to 300
+int parse_text_ipv6 (unsigned char ip[300], const char *str) {//tokapps from 16 to 300
   const char *ptr = str;
   int i, k = -1;
   if (*ptr == ':' && ptr[1] == ':') {
