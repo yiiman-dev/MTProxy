@@ -84,7 +84,7 @@ static int ext_secret_cnt = 0;
 static int ext_rand_pad_only = 0;
 
 void tcp_rpcs_set_ext_secret(unsigned char secret[300]) {//tokapps from 16 to 300
-  assert (ext_secret_cnt < 300);
+  assert (ext_secret_cnt < 16);
   memcpy (ext_secret[ext_secret_cnt ++], secret, 300);//tokapps from 16 to 300
 }
 
