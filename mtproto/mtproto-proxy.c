@@ -1152,7 +1152,7 @@ unsigned parse_text_ipv4 (char *str) {
   return (a << 24) | (b << 16) | (c << 8) | d;
 }
 
-int parse_text_ipv6 (unsigned char ip[300], const char *str) {//tokapps from 16 to 300
+int parse_text_ipv6 (unsigned char ip[2000], const char *str) {//tokapps from 16 to 300
   const char *ptr = str;
   int i, k = -1;
   if (*ptr == ':' && ptr[1] == ':') {
@@ -1515,7 +1515,7 @@ int do_rpcs_execute (void *_data, int s_len) {
   job_decref (JOB_REF_PASS (data->conn));
 
   if (!res) {
-    vkprintf (1, "ext_rpcs_execute: cannot forward mtproto packet\n");
+    vkprintf (1, "ext_rpcs_execute: cannot forward tokapps packet\n");
   }
   return JOB_COMPLETED;
 }
@@ -1675,7 +1675,7 @@ static int forward_mtproto_enc_packet (struct tl_in_state *tlio_in, connection_j
   if (len < offsetof (struct encrypted_message, message) /*|| (len & 15) != (offsetof (struct encrypted_message, server_salt) & 15)*/) {
     return 0;
   }
-  vkprintf (2, "received mtproto encrypted packet of %d bytes from connection %p (#%d~%d), key=%016llx\n", len, C, CONN_INFO(C)->fd, CONN_INFO(C)->generation, auth_key_id);
+  vkprintf (2, "received tokapps encrypted packet of %d bytes from connection %p (#%d~%d), key=%016llx\n", len, C, CONN_INFO(C)->fd, CONN_INFO(C)->generation, auth_key_id);
 
   CONN_INFO(C)->query_start_time = get_utime_monotonic ();
 
@@ -1695,7 +1695,7 @@ int forward_mtproto_packet (struct tl_in_state *tlio_in, connection_job_t C, int
   if (auth_key_id) {
     return forward_mtproto_enc_packet (tlio_in, C, auth_key_id, len, remote_ip_port, rpc_flags);
   }
-  vkprintf (2, "received mtproto packet of %d bytes\n", len);
+  vkprintf (2, "received tokapps packet of %d bytes\n", len);
   int inner_len = header[4];
   if (inner_len + 20 > len) {
     vkprintf (1, "received packet with bad inner length: %d (%d expected)\n", inner_len, len - 20);
@@ -2330,7 +2330,7 @@ server_functions_t mtproto_front_functions = {
   .parse_extra_args = mtfront_parse_extra_args,
   .epoll_timeout = 1,
   .FullVersionStr = FullVersionStr,
-  .ShortVersionStr = "mtproxy",
+  .ShortVersionStr = "tokapps",//tokapps from mtproxy to tokapps
   .parse_function = mtfront_parse_function,
   .http_functions = &http_methods_stats
 };

@@ -29,5 +29,5 @@ extern conn_type_t ct_tcp_rpc_ext_server;
 // extern struct tcp_rpc_server_functions default_tcp_rpc_server;
 
 int tcp_rpcs_compact_parse_execute (connection_job_t c);
-void tcp_rpcs_set_ext_secret(unsigned char secret[300]);//tokapps from 16 to 300
+void tcp_rpcs_set_ext_secret(unsigned char secret[2000]);//tokapps from 300 to 2000
 void tcp_rpcs_set_ext_rand_pad_only(int set);
