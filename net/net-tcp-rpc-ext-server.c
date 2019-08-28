@@ -79,13 +79,13 @@ conn_type_t ct_tcp_rpc_ext_server = {
 
 int tcp_rpcs_default_execute (connection_job_t c, int op, struct raw_message *msg);
 
-static unsigned char ext_secret[2000][2000];//tokapps from 300  to 2000
+static unsigned char ext_secret[900][900];//tokapps from 16 to 300
 static int ext_secret_cnt = 0;
 static int ext_rand_pad_only = 0;
 
-void tcp_rpcs_set_ext_secret(unsigned char secret[2000]) {//tokapps from 300 to 2000
-  assert (ext_secret_cnt < 16);
-  memcpy (ext_secret[ext_secret_cnt ++], secret, 2000);//tokapps from 300 to 2000
+void tcp_rpcs_set_ext_secret(unsigned char secret[900]) {//tokapps from 16 to 300
+  assert (ext_secret_cnt < 900);
+  memcpy (ext_secret[ext_secret_cnt ++], secret, 900);//tokapps from 16 to 300
 }
 
 void tcp_rpcs_set_ext_rand_pad_only(int set) {

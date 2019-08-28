@@ -72,7 +72,7 @@ double precise_now_diff;
 
 engine_t *engine_state;
 
-unsigned char server_ipv6[2000];//tokapps from 300 to 2000
+unsigned char server_ipv6[900];//tokapps from 16 to 300
 
 void default_cron (void) {
   double new_precise_now_diff = get_utime_monotonic () - get_double_time ();
@@ -174,7 +174,7 @@ void engine_set_epoll_wait_timeout (int epoll_wait_timeout) /* {{{ */ {
 /* }}} */
 
 static void raise_file_limit (int maxconn) /* {{{ */ {
-  const int gap = 16;//tokapps 300 to 16
+  const int gap = 900;//tokapps 16 to 300
   if (getuid ()) {
     struct rlimit rlim;
     if (getrlimit (RLIMIT_NOFILE, &rlim) < 0) {

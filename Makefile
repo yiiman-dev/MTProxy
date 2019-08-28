@@ -20,7 +20,7 @@ CINCLUDE = -iquote common -iquote .
 
 LIBLIST = ${LIB}/libkdb.a
 
-PROJECTS = common jobs tokapps net crypto engine
+PROJECTS = common jobs mtproto net crypto engine
 
 OBJDIRS := ${OBJ} $(addprefix ${OBJ}/,${PROJECTS}) ${EXE} ${LIB}
 DEPDIRS := ${DEP} $(addprefix ${DEP}/,${PROJECTS})
