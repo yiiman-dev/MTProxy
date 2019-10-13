@@ -1,5 +1,9 @@
 # MTProxy
-Simple MT-Proto proxy
+The best proxy for multi-scripts and dedicated proxy vendors, written in C language and with periodic updates
+This proxy is recommended for anyone looking to sell dedicated high-speed proxies to a limited number of users.
+
+Using the multi-thread feature you can get the best speed with the most users possible.
+For a virtual server with 4 CPU cores, support around 12000 people.
 
 ## Building
 Install dependencies, you would need common set of tools for building from source, and development packages for `openssl` and `zlib`.
@@ -16,7 +20,7 @@ yum groupinstall "Development Tools"
 
 Clone the repo:
 ```bash
-git clone https://github.com/TelegramMessenger/MTProxy
+git clone https://github.com/amintado/MTProxy
 cd MTProxy
 ```
 
