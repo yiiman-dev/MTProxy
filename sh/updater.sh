@@ -13,16 +13,23 @@ if [ $STATUS_CONF -eq 0 ]; then
   cp proxy-multi.conf1 proxy-multi.conf
 fi
 rm proxy-multi.conf1
+
+
 cd /opt/MTProxy/objs/bin
 rm mtproto-proxy
+
+
 cd /opt
 mkdir UpdatedMtproxy
 cd UpdatedMtproxy
 git clone https://github.com/amintado/MTProxy
-cd  MTProxy
-find -exec mv {} /opt/ +
-cd ..
+
+y | mv -f MTProxy/* /opt/MTProxy
+cd /opt
+
 rm -rf UpdatedMtproxy
+cd /opt/MTProxy/sh
+chmod -R 0777 /opt/MTProxy/sh
 ./compile.sh
 
 
