@@ -1353,7 +1353,7 @@ int tcp_rpcs_compact_parse_execute(connection_job_t C) {
 
             if (ext_secret_cnt > 0) {
                 vkprintf(1, "invalid \"random\" 64-byte 1 header, entering global skip mode ext_secret_cnt is: %d and secret code is %s or %d \n",ext_secret_cnt,ext_secret[secret_id],ext_secret[secret_id]);
-                return (-1 << 28);
+//                return (-1 << 28);
             }
 
 #if __ALLOW_UNOBFS__
