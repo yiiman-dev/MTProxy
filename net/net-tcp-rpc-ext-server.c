@@ -1352,7 +1352,7 @@ int tcp_rpcs_compact_parse_execute(connection_job_t C) {
             }
 
             if (ext_secret_cnt > 0) {
-                vkprintf(1, "invalid \"random\" 64-byte header, entering global skip mode\n");
+                vkprintf(1, "invalid \"random\" 64-byte 1 header, entering global skip mode\n");
                 return (-1 << 28);
             }
 
@@ -1365,7 +1365,7 @@ int tcp_rpcs_compact_parse_execute(connection_job_t C) {
       assert (rwm_skip_data (&c->in, 64) == 64);
       continue;
 #else
-            vkprintf(1, "invalid \"random\" 64-byte header, entering global skip mode\n");
+            vkprintf(1, "invalid \"random\" 64-byte 2 header, entering global skip mode\n");
             return (-1 << 28);
 #endif
         }
