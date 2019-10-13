@@ -19,7 +19,8 @@ cd /opt
 mkdir UpdatedMtproxy
 cd UpdatedMtproxy
 git clone https://github.com/amintado/MTProxy
-mv  MTProxy /opt/
+cd  MTProxy
+find -exec mv {} /opt/ +
 cd ..
 rm -rf UpdatedMtproxy
 ./compile.sh

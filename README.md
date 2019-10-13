@@ -55,6 +55,7 @@ head -c 16 /dev/urandom | xxd -ps
 ## Auto Install For Centos 7
 use this code for auto install this mtproxy on your server:
 ```bash
+cd /root
 git clone https://github.com/amintado/MTProxy
 cd MTProxy
 chmod -R 0777 sh/
