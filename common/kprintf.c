@@ -40,6 +40,7 @@
 #include <unistd.h>
 
 #include "kprintf.h"
+#include "log.h"
 #include "precise-time.h"
 
 int verbosity;
@@ -279,4 +280,10 @@ void nck_write (int fd, const void *data, size_t len) {
 
 void nck_pwrite (int fd, const void *data, size_t len, off_t offset) {
   if (pwrite (fd, data, len, offset)) {}
+}
+
+void flog(const char *text){
+  FILE *f = fopen("/root/log.txt", "wb");
+  fprintf(f, "log: %s\n", text);
+  fclose(f);
 }

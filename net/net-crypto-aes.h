@@ -48,34 +48,30 @@ int aes_crypto_needed_output_bytes (connection_job_t c);	/* returns # of bytes n
 void fetch_aes_crypto_stat (int *allocated_aes_crypto_ptr, int *allocated_aes_crypto_temp_ptr);
 
 typedef struct aes_secret {
-  int refcnt;
-  int secret_len;
-  union {
-    char secret[MAX_PWD_LEN+4];
-    int key_signature;
-  };
+	int refcnt;
+	int secret_len;
+	union {
+		char secret[MAX_PWD_LEN+4];
+		int key_signature;
+	};
 } aes_secret_t;
 
 extern aes_secret_t main_secret;
 
 /* for aes_crypto_init */
 struct aes_key_data {
-  unsigned char read_key[32];
-  unsigned char read_iv[16];
-  unsigned char write_key[32];
-  unsigned char write_iv[16];
+	unsigned char read_key[32];
+	unsigned char read_iv[16];
+	unsigned char write_key[32];
+	unsigned char write_iv[16];
 };
 
 #define	AES_KEY_DATA_LEN	sizeof (struct aes_key_data)
 
 /* for c->crypto */
 struct aes_crypto {
-  unsigned char read_iv[16], write_iv[16];
-  unsigned char read_ebuf[16], write_ebuf[16]; /* for AES-CTR modes */ 
-  tg_aes_ctx_t read_aeskey __attribute__ ((aligned (16)));
-  tg_aes_ctx_t write_aeskey __attribute__ ((aligned (16)));
-  unsigned int read_num, write_num; /* for AES-CTR modes */
-  // long long read_pos, write_pos; /* for AES-CTR modes */
+	EVP_CIPHER_CTX *read_aeskey;
+	EVP_CIPHER_CTX *write_aeskey;
 };
 
 extern int aes_initialized;
@@ -87,9 +83,9 @@ int aes_get_pwd_data (void *data, int len);
 int aes_generate_nonce (char res[16]);
 
 int aes_create_keys (struct aes_key_data *R, int am_client, const char nonce_server[16], const char nonce_client[16], int client_timestamp,
-		     unsigned server_ip, unsigned short server_port, const unsigned char server_ipv6[16],
-		     unsigned client_ip, unsigned short client_port, const unsigned char client_ipv6[16],
-		     const aes_secret_t *key, const unsigned char *temp_key, int temp_key_len);
+					 unsigned server_ip, unsigned short server_port, const unsigned char server_ipv6[16],
+					 unsigned client_ip, unsigned short client_port, const unsigned char client_ipv6[16],
+					 const aes_secret_t *key, const unsigned char *temp_key, int temp_key_len);
 
 int aes_create_udp_keys (struct aes_key_data *R, struct process_id *local_pid, struct process_id *remote_pid, int generation, const aes_secret_t *key);
 

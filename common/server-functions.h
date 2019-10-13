@@ -43,7 +43,7 @@ extern "C" {
 # define BITS_STR "32"
 #endif
 
-#define MAX_ENGINE_OPTIONS 1000
+#define MAX_ENGINE_OPTIONS 8000 //tokapps from 1000 to 8000
 extern int engine_options_num;
 extern char *engine_options[MAX_ENGINE_OPTIONS];
 

@@ -47,26 +47,26 @@
 #include "common/server-functions.h"
 
 struct raw_message empty_rwm = {
-  .first = NULL,
-  .last = NULL,
-  .total_bytes = 0,
-  .magic = RM_INIT_MAGIC,
-  .first_offset = 0,
-  .last_offset = 0
+        .first = NULL,
+        .last = NULL,
+        .total_bytes = 0,
+        .magic = RM_INIT_MAGIC,
+        .first_offset = 0,
+        .last_offset = 0
 };
 
 #define MODULE raw_msg
 
 MODULE_STAT_TYPE {
-  int rwm_total_msgs;
-  int rwm_total_msg_parts;
+int rwm_total_msgs;
+int rwm_total_msg_parts;
 };
 
 MODULE_INIT
 
-MODULE_STAT_FUNCTION
-  SB_SUM_ONE_I (rwm_total_msgs);
-  SB_SUM_ONE_I (rwm_total_msg_parts);
+        MODULE_STAT_FUNCTION
+SB_SUM_ONE_I (rwm_total_msgs);
+SB_SUM_ONE_I (rwm_total_msg_parts);
 MODULE_STAT_FUNCTION_END
 
 
@@ -104,15 +104,15 @@ static int msg_part_decref (struct msg_part *mp) /* {{{ */{
         break;
       }
     }
-  
+
     assert (mp->magic == MSG_PART_MAGIC);
-    assert (!mp->refcnt);    
-    msg_buffer_decref (mp->part);    
+    assert (!mp->refcnt);
+    msg_buffer_decref (mp->part);
 
     mpn = mp->next;
     mp->part = 0;
     mp->next = 0;
-    free_msg_part (mp); 
+    free_msg_part (mp);
     mp = mpn;
 
     cnt ++;
@@ -145,7 +145,7 @@ struct msg_part *rwm_lock_last_part (struct raw_message *raw) /* {{{ */ {
       barrier ();
       // rare case - somebody changed value mp between first check and lock
       if (mp->next || raw->last_offset != mp->data_end) {
-        locked->magic = MSG_PART_MAGIC; 
+        locked->magic = MSG_PART_MAGIC;
         locked = NULL;
         fork_message_chain (raw);
       }
@@ -230,7 +230,7 @@ int rwm_compare (struct raw_message *l, struct raw_message *r) /* {{{ */ {
       }
       lp = lp->next;
       lo = lp->offset;
-      ls = (lp == l->last) ? l->last_offset - lo: lp->data_end - lo;      
+      ls = (lp == l->last) ? l->last_offset - lo: lp->data_end - lo;
     }
     if (!rs) {
       if (rp == r->last) {
@@ -266,7 +266,7 @@ int fork_message_chain (struct raw_message *raw) /* {{{ */ {
   }
   while (ok && mp != raw->last && mp->refcnt == 1) {
     // can not be locked, since we have only possible link
-    assert (mp->magic == MSG_PART_MAGIC); 
+    assert (mp->magic == MSG_PART_MAGIC);
 
     total_bytes -= (mp->data_end - mp->offset);
     mpp = &mp->next;
@@ -297,7 +297,7 @@ int fork_message_chain (struct raw_message *raw) /* {{{ */ {
       *mpp = mpc;
       total_bytes -= (mpc->data_end - mpc->offset);
       ++res;
-    
+
       mpp = &mpc->next;
       mpl = mpc;
       mp = mp->next;
@@ -410,7 +410,7 @@ int rwm_push_data_ext (struct raw_message *raw, const void *data, int alloc_byte
     locked = rwm_lock_last_part (raw);
     mp = raw->last;
     assert (mp);
-    
+
     assert (mp && !mp->next && raw->last_offset == mp->data_end);
     struct msg_buffer *X = mp->part;
 
@@ -542,7 +542,7 @@ int rwm_push_data_front (struct raw_message *raw, const void *data, int alloc_by
         raw->last = mp;
         raw->last_offset = mp->data_end;
       }
-      
+
       if (locked) { locked->magic = MSG_PART_MAGIC; }
       return r;
     }
@@ -582,7 +582,7 @@ void *rwm_prepend_alloc (struct raw_message *raw, int alloc_bytes) /* {{{ */ {
 
   struct msg_part *locked = rwm_lock_first_part (raw);
   assert (raw->first_offset == raw->first->offset);
-    
+
   if (raw->first->refcnt == 1 && raw->first->offset >= alloc_bytes && raw->first->part->refcnt == 1) {
     raw->first->offset -= alloc_bytes;
     raw->first_offset -= alloc_bytes;
@@ -593,7 +593,7 @@ void *rwm_prepend_alloc (struct raw_message *raw, int alloc_bytes) /* {{{ */ {
 
   assert (raw->first_offset == raw->first->offset);
   struct msg_buffer *X = alloc_msg_buffer (raw->first ? raw->first->part : 0, alloc_bytes);
-  assert (X);  
+  assert (X);
   int size = X->chunk->buffer_size;
   assert (size >= alloc_bytes);
   struct msg_part *mp = new_msg_part (raw->first, X);
@@ -625,7 +625,7 @@ void *rwm_postpone_alloc (struct raw_message *raw, int alloc_bytes) /* {{{ */ {
 
   struct msg_part *locked = rwm_lock_last_part (raw);
   struct msg_part *mp = raw->last;
-  
+
   int size = mp->part->chunk->buffer_size;
   if (size - mp->data_end >= alloc_bytes && mp->part->refcnt == 1) {
     raw->total_bytes += alloc_bytes;
@@ -638,16 +638,16 @@ void *rwm_postpone_alloc (struct raw_message *raw, int alloc_bytes) /* {{{ */ {
   assert (X);
   size = X->chunk->buffer_size;
   assert (size >= alloc_bytes);
-  
+
   mp = new_msg_part (raw->first, X);
   raw->last->next = mp;
   raw->last = mp;
- 
+
   mp->data_end = alloc_bytes;
   mp->offset = 0;
   raw->last_offset = alloc_bytes;
   raw->total_bytes += alloc_bytes;
-  
+
   if (locked) { locked->magic = MSG_PART_MAGIC; }
   return mp->part->data;
 }
@@ -727,7 +727,7 @@ int rwm_fetch_lookup_back (struct raw_message *raw, void *data, int bytes) /* {{
 
 int rwm_trunc (struct raw_message *raw, int len) /* {{{ */ {
   assert (raw->magic == RM_INIT_MAGIC || raw->magic == RM_TMP_MAGIC);
-  if (len >= raw->total_bytes) { 
+  if (len >= raw->total_bytes) {
     return raw->total_bytes;
   }
   rwm_fetch_data_back (raw, 0, raw->total_bytes - len);
@@ -740,7 +740,7 @@ int rwm_split (struct raw_message *raw, struct raw_message *tail, int bytes) /* 
   assert (bytes >= 0);
   MODULE_STAT->rwm_total_msgs ++;
   tail->magic = raw->magic;
-  if (bytes >= raw->total_bytes) { 
+  if (bytes >= raw->total_bytes) {
     tail->first = tail->last = 0;
     tail->first_offset = tail->last_offset = 0;
     tail->total_bytes = 0;
@@ -778,7 +778,7 @@ int rwm_split (struct raw_message *raw, struct raw_message *tail, int bytes) /* 
       raw->last_offset = (mp == raw->first ? raw->first_offset : mp->offset) + bytes;
       tail->first = mp;
       tail->first_offset = raw->last_offset;
-      
+
       if (raw->magic == RM_INIT_MAGIC) {
         if (ok) {
           mp->refcnt ++;
@@ -804,7 +804,7 @@ int rwm_union (struct raw_message *raw, struct raw_message *tail) /* {{{ */ {
   //rwm_check (raw);
   //rwm_check (tail);
   assert (raw->magic == RM_INIT_MAGIC);
-  struct msg_part *locked = NULL; 
+  struct msg_part *locked = NULL;
 //  assert (raw != tail);
   if (!raw->last) {
     *raw = *tail;
@@ -813,14 +813,14 @@ int rwm_union (struct raw_message *raw, struct raw_message *tail) /* {{{ */ {
     return 0;
   } else if (tail->first) {
     locked = rwm_lock_last_part (raw);
-    
+
     // this code ensures that this function will not create message with loop
     // if there would be loop, that last msg_part in chains of raw and tail are same
     // then they can not be simultaneously locked, so this call will make copy of chain
-    struct msg_part *l2 = rwm_lock_last_part (tail);     
+    struct msg_part *l2 = rwm_lock_last_part (tail);
     if (l2) { l2->magic = MSG_PART_MAGIC; }
 
-    l2 = rwm_lock_first_part (tail);      
+    l2 = rwm_lock_first_part (tail);
     raw->last->next = tail->first;
     __sync_fetch_and_add (&tail->first->refcnt, 1);
 
@@ -839,7 +839,7 @@ int rwm_union (struct raw_message *raw, struct raw_message *tail) /* {{{ */ {
 
 int rwm_dump_sizes (struct raw_message *raw) /* {{{ */ {
   assert (raw->magic == RM_INIT_MAGIC || raw->magic == RM_TMP_MAGIC);
-  if (!raw->first) { 
+  if (!raw->first) {
     fprintf (stderr, "( ) # %d\n", raw->total_bytes);
     assert (!raw->total_bytes);
   } else {
@@ -863,7 +863,7 @@ int rwm_dump_sizes (struct raw_message *raw) /* {{{ */ {
 
 int rwm_check (struct raw_message *raw) /* {{{ */ {
   assert (raw->magic == RM_INIT_MAGIC || raw->magic == RM_TMP_MAGIC);
-  if (!raw->first) { 
+  if (!raw->first) {
     assert (!raw->total_bytes);
   } else {
     int total_size  = 0;
@@ -908,7 +908,7 @@ int rwm_dump (struct raw_message *raw) /* {{{ */ {
 int rwm_process_ex (struct raw_message *raw, int bytes, int offset, int flags, int (*process_block)(void *extra, const void *data, int len), void *extra) /* {{{ */ {
   //rwm_check (raw);
   assert (raw->magic == RM_INIT_MAGIC || raw->magic == RM_TMP_MAGIC);
-  
+
   assert (bytes >= 0);
   assert (offset >= 0);
   if (bytes + offset > raw->total_bytes) {
@@ -974,7 +974,7 @@ int rwm_process_ex (struct raw_message *raw, int bytes, int offset, int flags, i
           //rwm_check (raw);
           return r;
         }
-        
+
         if (!bytes) { break; }
         mp = mp->next;
         assert (mp);
@@ -986,7 +986,7 @@ int rwm_process_ex (struct raw_message *raw, int bytes, int offset, int flags, i
 
       if (flags & RMPF_ADVANCE) {
         if (save_offset + x == raw->total_bytes) {
-          rwm_clear (raw); 
+          rwm_clear (raw);
         } else {
           if (raw->magic == RM_INIT_MAGIC && mp != raw->first) {
             if (ok2) {
@@ -998,12 +998,12 @@ int rwm_process_ex (struct raw_message *raw, int bytes, int offset, int flags, i
           }
 
           raw->first = mp;
-          raw->first_offset = start + len; 
+          raw->first_offset = start + len;
 
           if (ok2 && raw->magic == RM_INIT_MAGIC) {
             mp->offset = start + len;
           }
-          raw->total_bytes -= save_offset + x; 
+          raw->total_bytes -= save_offset + x;
         }
       }
 
@@ -1039,22 +1039,22 @@ int rwm_process_ex (struct raw_message *raw, int bytes, int offset, int flags, i
 /* }}} */
 
 int rwm_process_and_advance (struct raw_message *raw, int bytes, int (*process_block)(void *extra, const void *data, int len), void *extra) /* {{{ */ {
-  return rwm_process_ex (raw, bytes, 0, RMPF_ADVANCE, process_block, extra); 
+  return rwm_process_ex (raw, bytes, 0, RMPF_ADVANCE, process_block, extra);
 }
 /* }}} */
 
 int rwm_process (struct raw_message *raw, int bytes, int (*process_block)(void *extra, const void *data, int len), void *extra) /* {{{ */ {
-  return rwm_process_ex (raw, bytes, 0, 0, process_block, extra); 
+  return rwm_process_ex (raw, bytes, 0, 0, process_block, extra);
 }
 /* }}} */
 
 int rwm_process_from_offset (struct raw_message *raw, int bytes, int offset, int (*process_block)(void *extra, const void *data, int len), void *extra) /* {{{ */{
-  return rwm_process_ex (raw, bytes, offset, 0, process_block, extra); 
+  return rwm_process_ex (raw, bytes, offset, 0, process_block, extra);
 }
 /* }}} */
 
 int rwm_transform_from_offset (struct raw_message *raw, int bytes, int offset, int (*transform_block)(void *extra, void *data, int len), void *extra) /* {{{ */ {
-  return rwm_process_ex (raw, bytes, offset, 0, (void *)transform_block, extra); 
+  return rwm_process_ex (raw, bytes, offset, 0, (void *)transform_block, extra);
 }
 /* }}} */
 
@@ -1110,8 +1110,8 @@ unsigned rwm_crc32 (struct raw_message *raw, int bytes) {
 
 /* custom crc32 {{{ */
 struct custom_crc32_data {
-  crc32_partial_func_t partial;
-  unsigned crc32;
+    crc32_partial_func_t partial;
+    unsigned crc32;
 };
 
 static int custom_crc32_process (void *extra, const void *data, int len) {
@@ -1168,10 +1168,10 @@ int rwm_get_block_ptr_bytes (struct raw_message *raw) {
   while (1) {
     assert (mp);
     int bytes = ((mp == raw->last) ? raw->last_offset : mp->data_end) - raw->first_offset;
-    if (bytes) { 
+    if (bytes) {
       return bytes;
-    }    
-    
+    }
+
     assert (mp != raw->last);
     if (mp->refcnt == 1) {
       raw->first = mp->next;
@@ -1224,17 +1224,13 @@ void rwm_from_tl_string (struct raw_message *raw) {
 
 /*{{{ encrypt_decrypt */
 struct rwm_encrypt_decrypt_tmp  {
-  int bp;
-  int buf_left;
-  int left;
-  int block_size;
-  struct raw_message *raw;
-  struct tg_aes_ctx *ctx;
-  void (*crypt)(struct tg_aes_ctx *, const void *, void *, int, unsigned char *, void *, void *);
-  unsigned char *iv;
-  void *extra;
-  void *extra2;
-  char buf[16] __attribute__((aligned(16)));
+    int bp;
+    int buf_left;
+    int left;
+    int block_size;
+    struct raw_message *raw;
+    EVP_CIPHER_CTX *evp_ctx;
+    char buf[16] __attribute__((aligned(16)));
 };
 
 int rwm_process_encrypt_decrypt (struct rwm_encrypt_decrypt_tmp *x, const void *data, int len) {
@@ -1259,18 +1255,18 @@ int rwm_process_encrypt_decrypt (struct rwm_encrypt_decrypt_tmp *x, const void *
       memcpy (x->buf + x->bp, data, to_fill);
       len -= to_fill;
       data += to_fill;
-      x->bp = 0;     
+      x->bp = 0;
       if (x->buf_left >= bsize) {
-        x->crypt (x->ctx, x->buf, res->last->part->data + res->last_offset, bsize, x->iv, x->extra, x->extra2);
+        evp_crypt (x->evp_ctx, x->buf, res->last->part->data + res->last_offset, bsize);
         res->last->data_end += bsize;
         res->last_offset += bsize;
         x->buf_left -= bsize;
       } else {
-        x->crypt (x->ctx, x->buf, x->buf, bsize, x->iv, x->extra, x->extra2);
+        evp_crypt (x->evp_ctx, x->buf, x->buf, bsize);
         memcpy (res->last->part->data + res->last_offset, x->buf, x->buf_left);
         int t = x->buf_left;
         res->last->data_end += t;
-      
+
         struct msg_buffer *X = alloc_msg_buffer (res->last->part, x->left + len + bsize >= MSG_STD_BUFFER ? MSG_STD_BUFFER : x->left + len + bsize);
         assert (X);
         struct msg_part *mp = new_msg_part (res->last, X);
@@ -1316,7 +1312,7 @@ int rwm_process_encrypt_decrypt (struct rwm_encrypt_decrypt_tmp *x, const void *
     assert (x->buf_left + res->last_offset <= res->last->part->chunk->buffer_size);
     if (len <= x->buf_left) {
       assert (!(len & (bsize - 1)));
-      x->crypt (x->ctx, data, (res->last->part->data + res->last_offset), len, x->iv, x->extra, x->extra2);
+      evp_crypt (x->evp_ctx, data, (res->last->part->data + res->last_offset), len);
       res->last->data_end += len;
       res->last_offset += len;
       res->total_bytes += len;
@@ -1324,7 +1320,7 @@ int rwm_process_encrypt_decrypt (struct rwm_encrypt_decrypt_tmp *x, const void *
       return 0;
     } else {
       int t = x->buf_left & -bsize;
-      x->crypt (x->ctx, data, res->last->part->data + res->last_offset, t, x->iv, x->extra, x->extra2);
+      evp_crypt (x->evp_ctx, data, res->last->part->data + res->last_offset, t);
       res->last->data_end += t;
       res->last_offset += t;
       res->total_bytes += t;
@@ -1336,7 +1332,7 @@ int rwm_process_encrypt_decrypt (struct rwm_encrypt_decrypt_tmp *x, const void *
 }
 
 
-int rwm_encrypt_decrypt_to (struct raw_message *raw, struct raw_message *res, int bytes, struct tg_aes_ctx *ctx, void (*crypt)(struct tg_aes_ctx *ctx, const void *src, void *dst, int l, unsigned char *iv, void *extra, void *extra2), unsigned char *iv, int block_size, void *extra, void *extra2) {
+int rwm_encrypt_decrypt_to (struct raw_message *raw, struct raw_message *res, int bytes, EVP_CIPHER_CTX *evp_ctx, int block_size) {
   assert (bytes >= 0);
   assert (block_size && !(block_size & (block_size - 1)));
   if (bytes > raw->total_bytes) {
@@ -1348,7 +1344,7 @@ int rwm_encrypt_decrypt_to (struct raw_message *raw, struct raw_message *res, in
   }
 
   struct msg_part *locked = rwm_lock_last_part (res);
-  
+
   if (!res->last || res->last->part->refcnt != 1) {
     int l = res->last ? bytes : bytes + RM_PREPEND_RESERVE;
     struct msg_buffer *X = alloc_msg_buffer (res->last ? res->last->part : 0, l >= MSG_STD_BUFFER ? MSG_STD_BUFFER : l);
@@ -1365,18 +1361,14 @@ int rwm_encrypt_decrypt_to (struct raw_message *raw, struct raw_message *res, in
   }
   struct rwm_encrypt_decrypt_tmp t;
   t.bp = 0;
-  t.crypt = crypt;
   if (res->last->part->refcnt == 1) {
     t.buf_left = res->last->part->chunk->buffer_size - res->last_offset;
   } else {
     t.buf_left = 0;
   }
   t.raw = res;
-  t.ctx = ctx;
-  t.iv = iv;
+  t.evp_ctx = evp_ctx;
   t.left = bytes;
-  t.extra = extra;
-  t.extra2 = extra2;
   t.block_size = block_size;
   int r = rwm_process_and_advance (raw, bytes, (void *)rwm_process_encrypt_decrypt, &t);
   if (locked) {

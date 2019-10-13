@@ -1,24 +1,20 @@
 /*
     This file is part of Mtproto-proxy Library.
-
     Mtproto-proxy Library is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 2 of the License, or
     (at your option) any later version.
-
     Mtproto-proxy Library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
-
     You should have received a copy of the GNU Lesser General Public License
     along with Mtproto-proxy Library.  If not, see <http://www.gnu.org/licenses/>.
-
     Copyright 2009-2013 Vkontakte Ltd
               2008-2013 Nikolai Durov
               2008-2013 Andrey Lopatin
-    
-    Copyright 2014-2016 Telegram Messenger Inc             
+
+    Copyright 2014-2016 Telegram Messenger Inc
                    2016 Vitaly Valtman
 */
 
@@ -113,7 +109,7 @@ static event_t *pop_heap_head (void) {
     ev_heap[i] = y;
     y->in_queue = i;
     i = j;
-  } 
+  }
   ev_heap[i] = x;
   x->in_queue = i;
   return ev;
@@ -261,7 +257,7 @@ int epoll_insert (int fd, int flags) {
     ev->epoll_state = ef;
     memset (&ee, 0, sizeof (ee));
     ee.events = ef;
-    ee.data.fd = fd; 
+    ee.data.fd = fd;
 
     vkprintf (2, "epoll_mod(%d,0x%08x,%d,%d,%08x)\n", epoll_fd, ev->state, fd, ee.data.fd, ee.events);
 
@@ -441,7 +437,7 @@ int epoll_work (int timeout) {
 /*
  * end (events)
  */
-  
+
 
 // From memcached.c: socket functions
 
@@ -557,8 +553,9 @@ struct in_addr settings_addr;
 
 int server_socket (int port, struct in_addr in_addr, int backlog, int mode) {
   int socket_fd;
-  struct linger ling = {0, 0};
+  // struct linger ling = {0, 0};
   int flags = 1;
+  int enable_often_tcp_keep_alive = 0;
 
   if ((socket_fd = new_socket (mode, 1)) == -1) {
     return -1;
@@ -568,23 +565,25 @@ int server_socket (int port, struct in_addr in_addr, int backlog, int mode) {
     maximize_sndbuf (socket_fd, 0);
     maximize_rcvbuf (socket_fd, 0);
     setsockopt (socket_fd, SOL_IP, IP_RECVERR, &flags, sizeof (flags));
-  
   } else {
     setsockopt (socket_fd, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof (flags));
     if (tcp_maximize_buffers) {
       maximize_sndbuf (socket_fd, 0);
       maximize_rcvbuf (socket_fd, 0);
     }
-    assert (setsockopt (socket_fd, SOL_SOCKET, SO_KEEPALIVE, &flags, sizeof (flags)) >= 0);
     assert (flags == 1);
-    setsockopt (socket_fd, SOL_SOCKET, SO_LINGER, &ling, sizeof (ling));
+    // setsockopt (socket_fd, SOL_SOCKET, SO_LINGER, &ling, sizeof (ling));
     setsockopt (socket_fd, IPPROTO_TCP, TCP_NODELAY, &flags, sizeof (flags));
 
-    int x = 40;
-    assert (setsockopt (socket_fd, IPPROTO_TCP, TCP_KEEPIDLE, &x, sizeof (x)) >= 0);
-    assert (setsockopt (socket_fd, IPPROTO_TCP, TCP_KEEPINTVL, &x, sizeof (x)) >= 0);
-    x = 5;
-    assert (setsockopt (socket_fd, IPPROTO_TCP, TCP_KEEPCNT, &x, sizeof (x)) >= 0);
+    assert (flags == 1);
+    assert (setsockopt (socket_fd, SOL_SOCKET, SO_KEEPALIVE, &flags, sizeof (flags)) >= 0);
+    if (enable_often_tcp_keep_alive) {
+      int x = 40;
+      assert (setsockopt (socket_fd, IPPROTO_TCP, TCP_KEEPIDLE, &x, sizeof (x)) >= 0);
+      assert (setsockopt (socket_fd, IPPROTO_TCP, TCP_KEEPINTVL, &x, sizeof (x)) >= 0);
+      x = 5;
+      assert (setsockopt (socket_fd, IPPROTO_TCP, TCP_KEEPCNT, &x, sizeof (x)) >= 0);
+    }
   }
 
   if (mode & SM_REUSE) {
@@ -594,7 +593,7 @@ int server_socket (int port, struct in_addr in_addr, int backlog, int mode) {
   if (!(mode & SM_IPV6)) {
     struct sockaddr_in addr;
     memset (&addr, 0, sizeof (addr));
-  
+
     addr.sin_family = AF_INET;
     addr.sin_port = htons (port);
     addr.sin_addr = in_addr;
@@ -658,13 +657,13 @@ int client_socket (in_addr_t in_addr, int port, int mode) {
     x = 5;
     assert (setsockopt (socket_fd, IPPROTO_TCP, TCP_KEEPCNT, &x, sizeof (x)) >= 0);
   }
-  
+
   if (!(mode & SM_IPV6)) {
     engine_t *E = engine_state;
     if (E && E->settings_addr.s_addr) {
       struct sockaddr_in localaddr;
       memset (&localaddr, 0, sizeof (localaddr));
-  
+
       localaddr.sin_family = AF_INET;
       localaddr.sin_port = 0;
       localaddr.sin_addr = E->settings_addr;
@@ -681,7 +680,7 @@ int client_socket (in_addr_t in_addr, int port, int mode) {
   addr.sin_family = AF_INET;
   addr.sin_port = htons (port);
   addr.sin_addr.s_addr = in_addr;
- 
+
   if (connect (socket_fd, (struct sockaddr *) &addr, sizeof (addr)) == -1 && errno != EINPROGRESS) {
     perror ("connect()");
     close (socket_fd);
@@ -689,7 +688,6 @@ int client_socket (in_addr_t in_addr, int port, int mode) {
   }
 
   return socket_fd;
-
 }
 
 int client_socket_ipv6 (const unsigned char in6_addr_ptr[16], int port, int mode) {
@@ -723,7 +721,7 @@ int client_socket_ipv6 (const unsigned char in6_addr_ptr[16], int port, int mode
   addr.sin6_family = AF_INET6;
   addr.sin6_port = htons (port);
   memcpy (&addr.sin6_addr, in6_addr_ptr, 16);
- 
+
   if (connect (socket_fd, (struct sockaddr *) &addr, sizeof (addr)) == -1 && errno != EINPROGRESS) {
     perror ("connect()");
     close (socket_fd);
@@ -731,12 +729,11 @@ int client_socket_ipv6 (const unsigned char in6_addr_ptr[16], int port, int mode
   }
 
   return socket_fd;
-
 }
 
 unsigned get_my_ipv4 (void) {
   struct ifaddrs *ifa_first, *ifa;
-  unsigned my_ip = 0, my_netmask = -1; 
+  unsigned my_ip = 0, my_netmask = -1;
   char *my_iface = 0;
   if (getifaddrs (&ifa_first) < 0) {
     perror ("getifaddrs()");
@@ -763,7 +760,7 @@ unsigned get_my_ipv4 (void) {
     }
   }
   vkprintf (1, "using main IP %d.%d.%d.%d/%d at interface %s\n", (my_ip >> 24), (my_ip >> 16) & 255, (my_ip >> 8) & 255, my_ip & 255,
-            __builtin_clz (~my_netmask), my_iface ?: "(none)"); 
+            __builtin_clz (~my_netmask), my_iface ?: "(none)");
   freeifaddrs (ifa_first);
   return my_ip;
 }
@@ -795,12 +792,12 @@ int get_my_ipv6 (unsigned char ipv6[16]) {
       if (found_auto) { continue; }
       my_iface = ifa->ifa_name;
       memcpy (ipv6, ip, 16);
-      memcpy (mask, &((struct sockaddr_in6 *)ifa->ifa_netmask)->sin6_addr, 16);      
+      memcpy (mask, &((struct sockaddr_in6 *)ifa->ifa_netmask)->sin6_addr, 16);
       found_auto = 1;
     } else {
       my_iface = ifa->ifa_name;
       memcpy (ipv6, ip, 16);
-      memcpy (mask, &((struct sockaddr_in6 *)ifa->ifa_netmask)->sin6_addr, 16);      
+      memcpy (mask, &((struct sockaddr_in6 *)ifa->ifa_netmask)->sin6_addr, 16);
       break;
     }
   }
@@ -859,7 +856,7 @@ int conv_ipv6_internal (const unsigned short a[8], char *buf) {
     }
     for (i = k; i < 8; i++) {
       ptr += sprintf (ptr, ":%x", ntohs (a[i]));
-    } 
+    }
   } else {
     for (i = 0; i < 7; i++) {
       ptr += sprintf (ptr, "%x:", ntohs (a[i]));
@@ -899,4 +896,3 @@ const char *show_ipv6 (const unsigned char ipv6[16]) {
   ptr += conv_ipv6_internal ((const unsigned short *) ipv6, ptr) + 1;
   return res;
 }
-

@@ -54,12 +54,12 @@ int cpu_tcp_server_writer (connection_job_t C) /* {{{ */ {
   assert_net_cpu_thread ();
 
   struct connection_info *c = CONN_INFO (C);
-  
+
   int stop = 0;
   if (c->status == conn_write_close) {
     stop = 1;
   }
-  
+
   while (1) {
     struct raw_message *raw = mpq_pop_nw (c->out_queue, 4);
     if (!raw) { break; }
@@ -67,7 +67,7 @@ int cpu_tcp_server_writer (connection_job_t C) /* {{{ */ {
     c->type->write_packet (C, raw);
     free (raw);
   }
-  
+
   c->type->flush (C);
 
   struct raw_message *raw = malloc (sizeof (*raw));
@@ -80,8 +80,8 @@ int cpu_tcp_server_writer (connection_job_t C) /* {{{ */ {
     *raw = c->out;
     rwm_init (&c->out, 0);
   }
- 
-  if (raw->total_bytes && c->io_conn) {        
+
+  if (raw->total_bytes && c->io_conn) {
     mpq_push_w (SOCKET_CONN_INFO(c->io_conn)->out_packet_queue, raw, 0);
     if (stop) {
       __sync_fetch_and_or (&SOCKET_CONN_INFO(c->io_conn)->flags, C_STOPWRITE);
@@ -111,13 +111,13 @@ int cpu_tcp_server_reader (connection_job_t C) /* {{{ */ {
     }
     free (raw);
   }
-        
+
   if (c->crypto) {
     assert (c->type->crypto_decrypt_input (C) >= 0);
   }
 
   int r = c->in.total_bytes;
-        
+
   int s = c->skip_bytes;
 
   if (c->type->data_received) {
@@ -142,7 +142,7 @@ int cpu_tcp_server_reader (connection_job_t C) /* {{{ */ {
     c->skip_bytes = s += r1;
 
     vkprintf (2, "skipped %d bytes, %d more to skip\n", r1, -s);
-      
+
     if (s) {
       return 0;
     }
@@ -168,7 +168,7 @@ int cpu_tcp_server_reader (connection_job_t C) /* {{{ */ {
     }
 
     int res = c->type->parse_execute (C);
-    
+
     // 0 - ok/done, >0 - need that much bytes, <0 - skip bytes, or NEED_MORE_BYTES
     if (!res) {
     } else if (res != NEED_MORE_BYTES) {
@@ -201,7 +201,7 @@ int cpu_tcp_aes_crypto_encrypt_output (connection_job_t C) /* {{{ */ {
   int l = out->total_bytes;
   l &= ~15;
   if (l) {
-    assert (rwm_encrypt_decrypt_to (&c->out, &c->out_p, l, &T->write_aeskey, (void *)T->write_aeskey.type->cbc_crypt, T->write_iv, 16, 0, 0) == l);
+    assert (rwm_encrypt_decrypt_to (&c->out, &c->out_p, l, T->write_aeskey, 16) == l);
   }
 
   return (-out->total_bytes) & 15;
@@ -218,7 +218,7 @@ int cpu_tcp_aes_crypto_decrypt_input (connection_job_t C) /* {{{ */ {
   int l = in->total_bytes;
   l &= ~15;
   if (l) {
-    assert (rwm_encrypt_decrypt_to (&c->in_u, &c->in, l, &T->read_aeskey, (void *)T->read_aeskey.type->cbc_crypt, T->read_iv, 16, 0, 0) == l);
+    assert (rwm_encrypt_decrypt_to (&c->in_u, &c->in, l, T->read_aeskey, 16) == l);
   }
 
   return (-in->total_bytes) & 15;
@@ -238,11 +238,22 @@ int cpu_tcp_aes_crypto_ctr128_encrypt_output (connection_job_t C) /* {{{ */ {
 
   struct aes_crypto *T = c->crypto;
   assert (c->crypto);
-  struct raw_message *out = &c->out;
 
-  int l = out->total_bytes;
-  if (l) {
-    assert (rwm_encrypt_decrypt_to (&c->out, &c->out_p, l, &T->write_aeskey, (void *)T->write_aeskey.type->ctr128_crypt, T->write_iv, 1, T->write_ebuf, &T->write_num) == l);
+  while (c->out.total_bytes) {
+    int len = c->out.total_bytes;
+    if (c->flags & C_IS_TLS) {
+      assert (c->left_tls_packet_length >= 0);
+      const int MAX_PACKET_LENGTH = 1425;
+      if (MAX_PACKET_LENGTH < len) {
+        len = MAX_PACKET_LENGTH;
+      }
+
+      unsigned char header[5] = {0x17, 0x03, 0x03, len >> 8, len & 255};
+      rwm_push_data (&c->out_p, header, 5);
+      vkprintf (2, "Send TLS-packet of length %d\n", len);
+    }
+
+    assert (rwm_encrypt_decrypt_to (&c->out, &c->out_p, len, T->write_aeskey, 1) == len);
   }
 
   return 0;
@@ -254,11 +265,37 @@ int cpu_tcp_aes_crypto_ctr128_decrypt_input (connection_job_t C) /* {{{ */ {
   struct connection_info *c = CONN_INFO (C);
   struct aes_crypto *T = c->crypto;
   assert (c->crypto);
-  struct raw_message *in = &c->in_u;
 
-  int l = in->total_bytes;
-  if (l) {
-    assert (rwm_encrypt_decrypt_to (&c->in_u, &c->in, l, &T->read_aeskey, (void *)T->read_aeskey.type->ctr128_crypt, T->read_iv, 1, T->read_ebuf, &T->read_num) == l);
+  while (c->in_u.total_bytes) {
+    int len = c->in_u.total_bytes;
+    if (c->flags & C_IS_TLS) {
+      assert (c->left_tls_packet_length >= 0);
+      if (c->left_tls_packet_length == 0) {
+        if (len < 5) {
+          vkprintf (2, "Need %d more bytes to parse TLS header\n", 5 - len);
+          return 5 - len;
+        }
+
+        unsigned char header[5];
+        assert (rwm_fetch_lookup (&c->in_u, header, 5) == 5);
+        if (memcmp (header, "\x17\x03\x03", 3) != 0) {
+          vkprintf (1, "error while parsing packet: expect TLS header\n");
+          fail_connection (C, -1);
+          return 0;
+        }
+        c->left_tls_packet_length = 256 * header[3] + header[4];
+        vkprintf (2, "Receive TLS-packet of length %d\n", c->left_tls_packet_length);
+        assert (rwm_skip_data (&c->in_u, 5) == 5);
+        len -= 5;
+      }
+
+      if (c->left_tls_packet_length < len) {
+        len = c->left_tls_packet_length;
+      }
+      c->left_tls_packet_length -= len;
+    }
+    vkprintf (2, "Read %d bytes out of %d available\n", len, c->in_u.total_bytes);
+    assert (rwm_encrypt_decrypt_to (&c->in_u, &c->in, len, T->read_aeskey, 1) == len);
   }
 
   return 0;
