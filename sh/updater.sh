@@ -24,7 +24,9 @@ mkdir UpdatedMtproxy
 cd UpdatedMtproxy
 git clone https://github.com/amintado/MTProxy
 
-y | mv -f MTProxy/* /opt/MTProxy
+
+cp -rlf MTProxy/* /opt/MTProxy
+
 cd /opt
 
 rm -rf UpdatedMtproxy
