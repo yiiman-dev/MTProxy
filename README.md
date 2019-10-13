@@ -1,5 +1,5 @@
 # MTProxy
-The best proxy for multi-scripts and dedicated proxy vendors, written in C language and with periodic updates
+The best proxy for multi-secrets and dedicated proxy vendors, written in C language and with periodic updates
 This proxy is recommended for anyone looking to sell dedicated high-speed proxies to a limited number of users.
 
 Using the multi-thread feature you can get the best speed with the most users possible.
