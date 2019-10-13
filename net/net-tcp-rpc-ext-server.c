@@ -1284,6 +1284,8 @@ int tcp_rpcs_compact_parse_execute(connection_job_t C) {
             int ok = 0;
             int secret_id;
             for (secret_id = 0; secret_id < 1 || secret_id < ext_secret_cnt; secret_id++) {
+                vkprintf(1,"now is in loop;\n secret_id: %d \n and ext_secret_cnt is: %d \n and random header is:  %d \n ",secret_id,ext_secret_cnt,random_header);
+
                 if (ext_secret_cnt > 0) {
                     memcpy(k, random_header + 8, 32);
                     memcpy(k + 32, ext_secret[secret_id], 16);
@@ -1312,7 +1314,7 @@ int tcp_rpcs_compact_parse_execute(connection_job_t C) {
 
                 evp_crypt(T->read_aeskey, random_header, random_header, 64);
                 unsigned tag = *(unsigned *) (random_header + 56);
-
+                vkprintf(1,"now random header is %d \n tag is %08x",random_header,tag);
                 if (tag == 0xdddddddd || tag == 0xeeeeeeee || tag == 0xefefefef) {
                     if (tag != 0xdddddddd && allow_only_tls) {
                         vkprintf(1, "Expected random padding mode\n");
@@ -1352,8 +1354,8 @@ int tcp_rpcs_compact_parse_execute(connection_job_t C) {
             }
 
             if (ext_secret_cnt > 0) {
-                vkprintf(1, "invalid \"random\" 64-byte 1 header, entering global skip mode ext_secret_cnt is: %d and secret code is %s or %d \n",ext_secret_cnt,ext_secret[secret_id],ext_secret[secret_id]);
-//                return (-1 << 28);
+                vkprintf(1, "invalid \"random\" 64-byte 1 header, entering global skip mode ext_secret_cnt is: %d and secret code is %s or %d and  \n",ext_secret_cnt,ext_secret[secret_id],ext_secret[secret_id]);
+                return (-1 << 28);
             }
 
 #if __ALLOW_UNOBFS__
