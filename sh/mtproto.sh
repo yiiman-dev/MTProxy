@@ -404,7 +404,7 @@ if [ "$#" -ge 3 ]; then
     TAG=$4
   fi
   CPU_CORES=$(nproc --all)
-  CUSTOM_ARGS=" --connections 2000 --max-special-connections 2000 -l /var/log/mtproxy.log -v"
+  CUSTOM_ARGS=" --connections 9000 --max-special-connections 3000 --http-stats"
   ENABLE_UPDATER="y"
   read
 else
@@ -414,26 +414,17 @@ SECRET_ARY=()
 TAG=""
 yum -y install hdparm
 sudo yum install ncurses-devel
-hostname cp.tokapps.top
+#hostname cp.tokapps.top
 clear
 echo "Welcome to MTProto-Proxy auto installer!"
-echo "Created by Hirbod Behnam"
+echo "Created by amintado in tokapps.ir"
 echo "I will install mtprotoproxy the official repository"
 echo "You can auto install like \"./MTProtoProxyOfficialInstall Port Status_Port Secret [TAG]\""
-echo "Source at https://github.com/TelegramMessenger/MTProxy"
+echo "Source at https://github.com/amintado/MTProxy"
 echo "Now I will gather some info from you."
 echo ""
 echo ""
-read -n 1 -s -r -p "Press any key to short information..."
-clear
-echo "kernel name of your system is:"
-uname
-echo "your network hostname is:"
-uname -n
-echo "your information about kernel release is:"
-uname -r
-echo "your your machine hardware name is:"
-uname -m
+
 
 cat /etc/*-release
 
@@ -443,45 +434,9 @@ cat /etc/*-release
 #echo ""
 #echo ""
 
-echo ""
-echo ""
-echo ""
-echo "cpu information:"
-echo ""
-echo ""
-echo ""
-lscpu
-#sudo dmidecode -t processor
-read -n 1 -s -r -p "Press any key to HDD SATA FDISK..."
-clear
-echo "HDD information:"
-echo ""
-echo ""
-echo ""
-lshw -class disk -class storage
-echo "SATA Devices information:"
-echo ""
-echo ""
-echo ""
-sudo hdparm /dev/sda1
-echo "FDISK information:"
-echo ""
-echo ""
-echo ""
-sudo fdisk -l
-
-read -n 1 -s -r -p "Press any key to HARDWARE COMPONENTS..."
-clear
-echo "Information about Hardware Components:"
-echo ""
-echo ""
-echo ""
-sudo dmidecode -t memory
-read -n 1 -s -r -p "Press any key to install..."
-clear
 
 PORT="2225"
-PORT_LO="-1"
+PORT_LO="8888"
 #Proxy Port
 #read -r -p "Select a port to proxy listen on it (-1 to randomize): " -e -i "-1" PORT
 #if [[ $PORT -eq -1 ]] ; then #Check random port
@@ -601,6 +556,7 @@ fi
 #Now install packages
 yum -y install epel-release
 yum -y install git
+yum -y install wget
 yum -y install zip
 yum -y install ntp
 yum -y install openssl-devel zlib-devel curl ca-certificates sed cronie
@@ -612,7 +568,7 @@ cd MTProxy || exit 2
 if [ "$DDOnly" = "y" ] || [ "$DDOnly" = "Y" ]; then
 #  git fetch origin pull/248/head:ddonly
 #  git checkout ddonly
-  CUSTOM_ARGS+=" -R"
+  CUSTOM_ARGS+=" -D www.google.com"
 fi
 make --always-make #Build the proxy
 
@@ -667,6 +623,7 @@ fi
 if [ "$SETFIREWALL" = true ]; then
   systemctl start firewalld
   firewall-cmd --zone=public --add-port="$PORT"/tcp
+  firewall-cmd --zone=public --add-port="8888"/tcp
   firewall-cmd --runtime-to-permanent
 fi
 #Setup service files
@@ -721,5 +678,5 @@ do
 
 # set terminal mode
 cp -r /opt/MTProxy/vanilla /usr/share/terminfo/v
-  echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=dd$i"
+  echo "tg://proxy?server=$PUBLIC_IP&port=$PORT&secret=ee$i""7777772e676f6f676c652e636f6d"
 done

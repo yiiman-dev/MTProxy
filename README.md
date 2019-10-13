@@ -56,7 +56,9 @@ head -c 16 /dev/urandom | xxd -ps
 use this code for auto install this mtproxy on your server:
 ```bash
 git clone https://github.com/amintado/MTProxy
-cd MTProxy/sh
+cd MTProxy
+chmod -R 0777 sh/
+cd sh
 ./mtproto.sh
 ```
 allow installer steps and install this mtproxy on your server
