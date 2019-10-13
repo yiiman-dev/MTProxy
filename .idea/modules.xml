@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/MTProxy-master.iml" filepath="$PROJECT_DIR$/.idea/MTProxy-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/MTProxy.iml" filepath="$PROJECT_DIR$/.idea/MTProxy.iml" />
     </modules>
   </component>
 </project>

@@ -1,4 +1,4 @@
-C:\Users\amin__000\.CLion2018.2\system\cygwin_cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /cygdrive/c/Users/amin__000/Desktop/MTProxy-master
+C:\Users\amin__000\.CLion2018.2\system\cygwin_cmake\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /cygdrive/f/company/cprojects/MTProxy
 -- The C compiler identification is GNU 7.4.0
 -- The CXX compiler identification is GNU 8.3.0
 CMake Warning at /cygdrive/c/Users/amin__000/.CLion2018.2/system/cygwin_cmake/share/cmake-3.12.0/Modules/Platform/CYGWIN.cmake:15 (message):
@@ -39,21 +39,21 @@ CMake Error at /cygdrive/c/Users/amin__000/.CLion2018.2/system/cygwin_cmake/shar
 
   It fails with the following output:
 
-    Change Dir: /cygdrive/c/Users/amin__000/Desktop/MTProxy-master/cmake-build-debug/CMakeFiles/CMakeTmp
+    Change Dir: /cygdrive/f/company/cprojects/MTProxy/cmake-build-debug/CMakeFiles/CMakeTmp
     
-    Run Build Command:"/usr/bin/make.exe" "cmTC_f829e/fast"
-    /usr/bin/make -f CMakeFiles/cmTC_f829e.dir/build.make CMakeFiles/cmTC_f829e.dir/build
-    make[1]: Entering directory '/cygdrive/c/Users/amin__000/Desktop/MTProxy-master/cmake-build-debug/CMakeFiles/CMakeTmp'
-    Building CXX object CMakeFiles/cmTC_f829e.dir/testCXXCompiler.cxx.o
-    /usr/bin/c++.exe     -o CMakeFiles/cmTC_f829e.dir/testCXXCompiler.cxx.o -c /cygdrive/c/Users/amin__000/Desktop/MTProxy-master/cmake-build-debug/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
-    Linking CXX executable cmTC_f829e.exe
-    /cygdrive/c/Users/amin__000/.CLion2018.2/system/cygwin_cmake/bin/cmake.exe -E cmake_link_script CMakeFiles/cmTC_f829e.dir/link.txt --verbose=1
-    /usr/bin/c++.exe    -Wl,--enable-auto-import  CMakeFiles/cmTC_f829e.dir/testCXXCompiler.cxx.o  -o cmTC_f829e.exe -Wl,--out-implib,libcmTC_f829e.dll.a -Wl,--major-image-version,0,--minor-image-version,0 
+    Run Build Command:"/usr/bin/make.exe" "cmTC_223c9/fast"
+    /usr/bin/make -f CMakeFiles/cmTC_223c9.dir/build.make CMakeFiles/cmTC_223c9.dir/build
+    make[1]: Entering directory '/cygdrive/f/company/cprojects/MTProxy/cmake-build-debug/CMakeFiles/CMakeTmp'
+    Building CXX object CMakeFiles/cmTC_223c9.dir/testCXXCompiler.cxx.o
+    /usr/bin/c++.exe     -o CMakeFiles/cmTC_223c9.dir/testCXXCompiler.cxx.o -c /cygdrive/f/company/cprojects/MTProxy/cmake-build-debug/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+    Linking CXX executable cmTC_223c9.exe
+    /cygdrive/c/Users/amin__000/.CLion2018.2/system/cygwin_cmake/bin/cmake.exe -E cmake_link_script CMakeFiles/cmTC_223c9.dir/link.txt --verbose=1
+    /usr/bin/c++.exe    -Wl,--enable-auto-import  CMakeFiles/cmTC_223c9.dir/testCXXCompiler.cxx.o  -o cmTC_223c9.exe -Wl,--out-implib,libcmTC_223c9.dll.a -Wl,--major-image-version,0,--minor-image-version,0 
     c++: fatal error: -fuse-linker-plugin, but cyglto_plugin.dll not found
     compilation terminated.
-    make[1]: *** [CMakeFiles/cmTC_f829e.dir/build.make:87: cmTC_f829e.exe] Error 1
-    make[1]: Leaving directory '/cygdrive/c/Users/amin__000/Desktop/MTProxy-master/cmake-build-debug/CMakeFiles/CMakeTmp'
-    make: *** [Makefile:121: cmTC_f829e/fast] Error 2
+    make[1]: *** [CMakeFiles/cmTC_223c9.dir/build.make:87: cmTC_223c9.exe] Error 1
+    make[1]: Leaving directory '/cygdrive/f/company/cprojects/MTProxy/cmake-build-debug/CMakeFiles/CMakeTmp'
+    make: *** [Makefile:121: cmTC_223c9/fast] Error 2
     
 
   
@@ -74,5 +74,5 @@ CMake Warning (dev) in CMakeLists.txt:
 This warning is for project developers.  Use -Wno-dev to suppress it.
 
 -- Configuring incomplete, errors occurred!
-See also "/cygdrive/c/Users/amin__000/Desktop/MTProxy-master/cmake-build-debug/CMakeFiles/CMakeOutput.log".
-See also "/cygdrive/c/Users/amin__000/Desktop/MTProxy-master/cmake-build-debug/CMakeFiles/CMakeError.log".
+See also "/cygdrive/f/company/cprojects/MTProxy/cmake-build-debug/CMakeFiles/CMakeOutput.log".
+See also "/cygdrive/f/company/cprojects/MTProxy/cmake-build-debug/CMakeFiles/CMakeError.log".
