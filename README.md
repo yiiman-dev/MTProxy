@@ -23,7 +23,7 @@ Clone the repo:
 git clone https://github.com/amintado/MTProxy
 cd MTProxy
 ```
-
+ 
 To build, simply run `make`, the binary will be in `objs/bin/mtproto-proxy`:
 
 ```bash
@@ -49,6 +49,25 @@ head -c 16 /dev/urandom | xxd -ps
 ```bash
 ./mtproto-proxy -u nobody -p 8888 -H 443 -S <secret> --aes-pwd proxy-secret proxy-multi.conf -M 1
 ```
+
+
+
+## Auto Install For Centos 7
+use this code for auto install this mtproxy on your server:
+```bash
+git clone https://github.com/amintado/MTProxy
+cd MTProxy/sh
+./mtproto.sh
+```
+allow installer steps and install this mtproxy on your server
+
+## after Auto Install (mtproto.sh file):
+after install mtproxy you can use this command for access Menu:
+```bash
+./mtproto.sh
+```
+this proxy will run on port 2225 in AutoInstaller
+
 ... where:
 - `nobody` is the username. `mtproto-proxy` calls `setuid()` to drop privilegies.
 - `443` is the port, used by clients to connect to the proxy.
