@@ -2278,6 +2278,7 @@ void mtfront_pre_init (void) {
         tcp_rpc_init_proxy_domains();
 
         if (workers) {
+            workers=0;
             kprintf ("It is recommended to not use workers with TLS-transport");
         }
         if (secret_count == 0) {
