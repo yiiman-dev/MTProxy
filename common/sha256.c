@@ -26,7 +26,7 @@
 
 void sha256_starts (sha256_context *ctx) {
   EVP_MD_CTX_init (ctx);
-  EVP_DigestInit_ex (ctx, EVP_sha256(), NULL);
+  EVP_DigestInit_ex (ctx, EVP_sha256(), NULL); 
 }
 
 void sha256_update (sha256_context *ctx, const unsigned char *input, int ilen) {

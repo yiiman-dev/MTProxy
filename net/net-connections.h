@@ -17,8 +17,8 @@
     Copyright 2009-2013 Vkontakte Ltd
               2008-2013 Nikolai Durov
               2008-2013 Andrey Lopatin
-
-    Copyright 2014      Telegram Messenger Inc
+    
+    Copyright 2014      Telegram Messenger Inc             
               2014      Nikolai Durov
               2014      Andrey Lopatin
 
@@ -88,39 +88,39 @@
 #define C_PERMANENT (C_IPV6 | C_RAWMSG)
 /* for connection status */
 enum {
-    conn_none,		// closed/uninitialized
-    conn_connecting,
-    conn_working,
-    conn_error,		// connection in bad state (it will be probably closed)
-    conn_listen,		// listening for inbound connections
-    conn_write_close,	// write all output buffer, then close; don't read input
-    conn_total_states	// total number of connection states
+  conn_none,		// closed/uninitialized
+  conn_connecting,
+  conn_working,
+  conn_error,		// connection in bad state (it will be probably closed)
+  conn_listen,		// listening for inbound connections
+  conn_write_close,	// write all output buffer, then close; don't read input
+  conn_total_states	// total number of connection states
 };
 
 /* for connection basic_type */
 enum {
-    ct_none,		// no connection (closed)
-    ct_listen,		// listening socket
-    ct_inbound,		// inbound connection
-    ct_outbound,		// outbound connection
-    ct_pipe,  		// used for pipe reading
-    ct_job		// used for async jobs ( net-jobs.h )
+  ct_none,		// no connection (closed)
+  ct_listen,		// listening socket
+  ct_inbound,		// inbound connection
+  ct_outbound,		// outbound connection
+  ct_pipe,  		// used for pipe reading
+  ct_job		// used for async jobs ( net-jobs.h )
 };
 
 /* for connection->ready of outbound connections */
 enum {
-    cr_notyet,		// not ready yet (e.g. logging in)
-    cr_ok,		// working
-    cr_stopped,		// stopped (don't send more queries)
-    cr_busy,		// busy (sending queries not allowed by protocol)
-    cr_failed		// failed (possibly timed out)
+  cr_notyet,		// not ready yet (e.g. logging in)
+  cr_ok,		// working
+  cr_stopped,		// stopped (don't send more queries)
+  cr_busy,		// busy (sending queries not allowed by protocol)
+  cr_failed		// failed (possibly timed out)
 };
 
 
-typedef job_t connection_job_t;
-typedef job_t socket_connection_job_t;
-typedef job_t listening_connection_job_t;
-typedef job_t conn_target_job_t;
+typedef job_t connection_job_t; 
+typedef job_t socket_connection_job_t; 
+typedef job_t listening_connection_job_t; 
+typedef job_t conn_target_job_t; 
 typedef job_t query_job_t;
 
 
@@ -129,197 +129,197 @@ typedef job_t query_job_t;
 #define	CONN_FUNC_MAGIC	0x11ef55aa
 
 typedef struct conn_functions {
-    int magic;
-    int flags;					/* may contain for example C_RAWMSG; (partially) inherited by inbound/outbound connections */
-    char *title;
-    int (*accept)(connection_job_t c);		 /* invoked for listen/accept connections of this type */
-    int (*init_accepted)(connection_job_t c);	 /* initialize a new accept()'ed connection */
-    int (*reader)(connection_job_t c);		 /* invoked from run() for reading network data */
-    int (*writer)(connection_job_t c);		 /* invoked from run() for writing data */
-    int (*close)(connection_job_t c, int who);	 /* invoked from run() whenever we need to close connection */
-    int (*parse_execute)(connection_job_t c);	 /* invoked from reader() for parsing and executing one query */
-    int (*init_outbound)(connection_job_t c);	 /* initializes newly created outbound connection */
-    int (*connected)(connection_job_t c);	 /* invoked from run() when outbound connection is established */
-    int (*check_ready)(connection_job_t c);	 /* updates conn->ready if necessary and returns it */
-    int (*wakeup_aio)(connection_job_t c, int r);/* invoked from net_aio.c::check_aio_completion when aio read operation is complete */
-    int (*write_packet)(connection_job_t c, struct raw_message *raw);		 /* adds necessary headers to packet */
-    int (*flush)(connection_job_t c);		 /* generates necessary padding and writes as much bytes as possible */
+  int magic;
+  int flags;					/* may contain for example C_RAWMSG; (partially) inherited by inbound/outbound connections */
+  char *title;
+  int (*accept)(connection_job_t c);		 /* invoked for listen/accept connections of this type */
+  int (*init_accepted)(connection_job_t c);	 /* initialize a new accept()'ed connection */
+  int (*reader)(connection_job_t c);		 /* invoked from run() for reading network data */
+  int (*writer)(connection_job_t c);		 /* invoked from run() for writing data */
+  int (*close)(connection_job_t c, int who);	 /* invoked from run() whenever we need to close connection */
+  int (*parse_execute)(connection_job_t c);	 /* invoked from reader() for parsing and executing one query */
+  int (*init_outbound)(connection_job_t c);	 /* initializes newly created outbound connection */
+  int (*connected)(connection_job_t c);	 /* invoked from run() when outbound connection is established */
+  int (*check_ready)(connection_job_t c);	 /* updates conn->ready if necessary and returns it */
+  int (*wakeup_aio)(connection_job_t c, int r);/* invoked from net_aio.c::check_aio_completion when aio read operation is complete */
+  int (*write_packet)(connection_job_t c, struct raw_message *raw);		 /* adds necessary headers to packet */ 
+  int (*flush)(connection_job_t c);		 /* generates necessary padding and writes as much bytes as possible */
 
-    // CPU-NET METHODS
-    int (*free)(connection_job_t c);
-    int (*free_buffers)(connection_job_t c);	 /* invoked from close() to free all buffers */
-    int (*read_write)(connection_job_t c);		 /* invoked when an event related to connection of this type occurs */
-    int (*wakeup)(connection_job_t c);		 /* invoked from run() when pending_queries == 0 */
-    int (*alarm)(connection_job_t c);		 /* invoked when timer is out */
+  // CPU-NET METHODS
+  int (*free)(connection_job_t c);
+  int (*free_buffers)(connection_job_t c);	 /* invoked from close() to free all buffers */
+  int (*read_write)(connection_job_t c);		 /* invoked when an event related to connection of this type occurs */
+  int (*wakeup)(connection_job_t c);		 /* invoked from run() when pending_queries == 0 */
+  int (*alarm)(connection_job_t c);		 /* invoked when timer is out */
 
-    // NET-NET METHODS
-    int (*socket_read_write)(connection_job_t c);		 /* invoked when an event related to connection of this type occurs */
-    int (*socket_reader)(connection_job_t c);		 /* invoked from run() for reading network data */
-    int (*socket_writer)(connection_job_t c);		 /* invoked from run() for writing data */
-    int (*socket_connected)(connection_job_t c);	 /* invoked from run() when outbound connection is established */
-    int (*socket_free)(connection_job_t c);
-    int (*socket_close)(connection_job_t c);
+  // NET-NET METHODS
+  int (*socket_read_write)(connection_job_t c);		 /* invoked when an event related to connection of this type occurs */
+  int (*socket_reader)(connection_job_t c);		 /* invoked from run() for reading network data */
+  int (*socket_writer)(connection_job_t c);		 /* invoked from run() for writing data */
+  int (*socket_connected)(connection_job_t c);	 /* invoked from run() when outbound connection is established */
+  int (*socket_free)(connection_job_t c);
+  int (*socket_close)(connection_job_t c);
 
-    // INLINE FUNCTIONS
-    int (*data_received)(connection_job_t c, int r);	/* invoked after r>0 bytes are read from socket */
-    int (*data_sent)(connection_job_t c, int w);	/* invoked after w>0 bytes are written into socket */
-    int (*ready_to_write)(connection_job_t c);   /* invoked from server_writer when Out.total_bytes crosses write_low_watermark ("greater or equal" -> "less") */
-
-    // INLINE METHODS
-    int (*crypto_init)(connection_job_t c, void *key_data, int key_data_len);  /* < 0 = error */
-    int (*crypto_free)(connection_job_t c);
-    int (*crypto_encrypt_output)(connection_job_t c);  /* 0 = all ok, >0 = so much more bytes needed to encrypt last block */
-    int (*crypto_decrypt_input)(connection_job_t c);   /* 0 = all ok, >0 = so much more bytes needed to decrypt last block */
-    int (*crypto_needed_output_bytes)(connection_job_t c);	/* returns # of bytes needed to complete last output block */
+  // INLINE FUNCTIONS
+  int (*data_received)(connection_job_t c, int r);	/* invoked after r>0 bytes are read from socket */
+  int (*data_sent)(connection_job_t c, int w);	/* invoked after w>0 bytes are written into socket */
+  int (*ready_to_write)(connection_job_t c);   /* invoked from server_writer when Out.total_bytes crosses write_low_watermark ("greater or equal" -> "less") */
+  
+  // INLINE METHODS
+  int (*crypto_init)(connection_job_t c, void *key_data, int key_data_len);  /* < 0 = error */
+  int (*crypto_free)(connection_job_t c);
+  int (*crypto_encrypt_output)(connection_job_t c);  /* 0 = all ok, >0 = so much more bytes needed to encrypt last block */
+  int (*crypto_decrypt_input)(connection_job_t c);   /* 0 = all ok, >0 = so much more bytes needed to decrypt last block */
+  int (*crypto_needed_output_bytes)(connection_job_t c);	/* returns # of bytes needed to complete last output block */
 } conn_type_t;
 
 struct conn_target_info {
-    struct event_timer timer;
-    int min_connections;
-    int max_connections;
+  struct event_timer timer;
+  int min_connections;
+  int max_connections;
 
-    struct tree_connection *conn_tree;
-    //connection_job_t first_conn, last_conn;
-    conn_type_t *type;
-    void *extra;
-    struct in_addr target;
-    unsigned char target_ipv6[16];
-    int port;
-    int active_outbound_connections, outbound_connections;
-    int ready_outbound_connections;
-    double next_reconnect, reconnect_timeout, next_reconnect_timeout;
-    int custom_field;
-    conn_target_job_t next_target, prev_target;
-    conn_target_job_t hnext;
+  struct tree_connection *conn_tree;
+  //connection_job_t first_conn, last_conn;
+  conn_type_t *type;
+  void *extra;
+  struct in_addr target;
+  unsigned char target_ipv6[16];
+  int port;
+  int active_outbound_connections, outbound_connections;
+  int ready_outbound_connections;
+  double next_reconnect, reconnect_timeout, next_reconnect_timeout;
+  int custom_field;
+  conn_target_job_t next_target, prev_target;
+  conn_target_job_t hnext;
 
-    int global_refcnt;
+  int global_refcnt;
 };
 
 struct pseudo_conn_target_info {
-    struct event_timer timer;
-    int pad1;
-    int pad2;
+  struct event_timer timer;
+  int pad1;
+  int pad2;
 
-    void *pad3;
-    conn_type_t *type;
-    void *extra;
-    struct in_addr target;
-    unsigned char target_ipv6[16];
-    int port;
-    int active_outbound_connections, outbound_connections;
-    int ready_outbound_connections;
+  void *pad3;
+  conn_type_t *type;
+  void *extra;
+  struct in_addr target;
+  unsigned char target_ipv6[16];
+  int port;
+  int active_outbound_connections, outbound_connections;
+  int ready_outbound_connections;
 
-    connection_job_t in_conn;
-    connection_job_t out_conn;
+  connection_job_t in_conn;
+  connection_job_t out_conn;
 };
 
 struct connection_info {
-    struct event_timer timer;
-    int fd;
-    int generation;
-    int flags;
-    // connection_job_t next, prev;
-    conn_type_t *type;
-    void *extra;
-    conn_target_job_t target;
-    connection_job_t io_conn;
-    int basic_type;
-    int status;
-    int error;
-    int unread_res_bytes;
-    int skip_bytes;
-    int pending_queries;
-    int queries_ok;
-    char custom_data[CONN_CUSTOM_DATA_BYTES];
-    unsigned our_ip, remote_ip;
-    unsigned our_port, remote_port;
-    unsigned char our_ipv6[16], remote_ipv6[16];
-    double query_start_time;
-    double last_query_time;
-    double last_query_sent_time;
-    double last_response_time;
-    double last_query_timeout;
-    //event_timer_t timer;
-    //event_timer_t write_timer;
-    int limit_per_write, limit_per_sec;
-    int last_write_time, written_per_sec;
-    int unreliability;
-    int ready;
-    //int parse_state;
-    int write_low_watermark;
-    void *crypto;
-    void *crypto_temp;
-    int listening, listening_generation;
-    int window_clamp;
-    int left_tls_packet_length;
+  struct event_timer timer;
+  int fd;
+  int generation;
+  int flags;
+  // connection_job_t next, prev;
+  conn_type_t *type;
+  void *extra;
+  conn_target_job_t target;
+  connection_job_t io_conn;
+  int basic_type;
+  int status;
+  int error;
+  int unread_res_bytes;
+  int skip_bytes;
+  int pending_queries;
+  int queries_ok;
+  char custom_data[CONN_CUSTOM_DATA_BYTES];
+  unsigned our_ip, remote_ip;
+  unsigned our_port, remote_port;
+  unsigned char our_ipv6[16], remote_ipv6[16];
+  double query_start_time;
+  double last_query_time;
+  double last_query_sent_time;
+  double last_response_time;
+  double last_query_timeout;
+  //event_timer_t timer;
+  //event_timer_t write_timer;
+  int limit_per_write, limit_per_sec;
+  int last_write_time, written_per_sec;
+  int unreliability;
+  int ready;
+  //int parse_state;
+  int write_low_watermark;
+  void *crypto;
+  void *crypto_temp;
+  int listening, listening_generation;
+  int window_clamp;
+  int left_tls_packet_length;
 
-    struct raw_message in_u, in, out, out_p;
+  struct raw_message in_u, in, out, out_p;
 
-    struct mp_queue *in_queue;
-    struct mp_queue *out_queue;
+  struct mp_queue *in_queue;
+  struct mp_queue *out_queue;
 
-    //netbuffer_t *Tmp, In, Out;
-    //char in_buff[BUFF_SIZE];
-    //char out_buff[BUFF_SIZE];
+  //netbuffer_t *Tmp, In, Out;
+  //char in_buff[BUFF_SIZE];
+  //char out_buff[BUFF_SIZE];
 };
 
 struct socket_connection_info {
-    struct event_timer timer;
-    int fd;
-    int pad;
-    int flags;
-    int current_epoll_status;
-    conn_type_t *type;
-    event_t *ev;
-    connection_job_t conn;
-    struct mp_queue *out_packet_queue;
-    struct raw_message out;
-    unsigned our_ip, remote_ip;
-    unsigned our_port, remote_port;
-    unsigned char our_ipv6[16], remote_ipv6[16];
-    int write_low_watermark;
-    int eagain_count;
+  struct event_timer timer;
+  int fd;
+  int pad;
+  int flags;
+  int current_epoll_status;
+  conn_type_t *type;
+  event_t *ev;
+  connection_job_t conn;
+  struct mp_queue *out_packet_queue;
+  struct raw_message out;
+  unsigned our_ip, remote_ip;
+  unsigned our_port, remote_port;
+  unsigned char our_ipv6[16], remote_ipv6[16];
+  int write_low_watermark;
+  int eagain_count;
 };
 
 struct listening_connection_info {
-    struct event_timer timer;
-    int fd;
-    int generation;
-    int flags;
-    int current_epoll_status;
-    conn_type_t *type;
-    event_t *ev;
-    void *extra;
-    int window_clamp;
+  struct event_timer timer;
+  int fd;
+  int generation;
+  int flags;
+  int current_epoll_status;
+  conn_type_t *type;
+  event_t *ev;
+  void *extra;
+  int window_clamp;
 };
 
 struct connections_stat {
-    int active_connections;
-    int active_dh_connections;
-    int outbound_connections;
-    int active_outbound_connections;
-    int ready_outbound_connections;
-    int active_special_connections;
-    int max_special_connections;
-    int allocated_connections;
-    int allocated_outbound_connections;
-    int allocated_inbound_connections;
-    int allocated_socket_connections;
-    int allocated_targets;
-    int ready_targets;
-    int active_targets;
-    int inactive_targets;
-    long long tcp_readv_calls;
-    long long tcp_readv_intr;
-    long long tcp_readv_bytes;
-    long long tcp_writev_calls;
-    long long tcp_writev_intr;
-    long long tcp_writev_bytes;
-    long long accept_calls_failed;
-    long long accept_nonblock_set_failed;
-    long long accept_rate_limit_failed;
-    long long accept_init_accepted_failed;
-    long long accept_connection_limit_failed;
+  int active_connections;
+  int active_dh_connections;
+  int outbound_connections;
+  int active_outbound_connections;
+  int ready_outbound_connections;
+  int active_special_connections;
+  int max_special_connections;
+  int allocated_connections;
+  int allocated_outbound_connections;
+  int allocated_inbound_connections;
+  int allocated_socket_connections;
+  int allocated_targets;
+  int ready_targets;
+  int active_targets;
+  int inactive_targets;
+  long long tcp_readv_calls;
+  long long tcp_readv_intr;
+  long long tcp_readv_bytes;
+  long long tcp_writev_calls;
+  long long tcp_writev_intr;
+  long long tcp_writev_bytes;
+  long long accept_calls_failed;
+  long long accept_nonblock_set_failed;
+  long long accept_rate_limit_failed;
+  long long accept_init_accepted_failed;
+  long long accept_connection_limit_failed;
 };
 
 #define QUERY_INFO(_c) ((struct query_info *)(_c)->j_custom)
@@ -344,7 +344,7 @@ int create_new_connections (conn_target_job_t S);
 
 int set_connection_timeout (connection_job_t C, double timeout);
 int clear_connection_timeout (connection_job_t C);
-
+  
 int prepare_stats (char *buf, int size);
 void fail_connection (connection_job_t C, int who);
 void fail_socket_connection (socket_connection_job_t C, int who);
@@ -389,7 +389,7 @@ void connection_write_close (connection_job_t C);
 #define read_in_old(c,data,len) read_in(&CONN_INFO(c)->In, data, len)
 
 static inline int is_ipv6_localhost (unsigned char ipv6[16]) {
-    return !*(long long *)ipv6 && ((long long *)ipv6)[1] == 1LL << 56;
+  return !*(long long *)ipv6 && ((long long *)ipv6)[1] == 1LL << 56;
 }
 
 void assert_net_cpu_thread (void);
@@ -397,7 +397,7 @@ void assert_net_net_thread (void);
 void assert_engine_thread (void);
 
 connection_job_t conn_target_get_connection (conn_target_job_t CT, int allow_stopped);
-
+      
 void insert_connection_into_target (conn_target_job_t SS, connection_job_t C);
 struct tree_connection *get_connection_tree (conn_target_job_t SS);
 //void wakeup_main_thread (void);
@@ -412,17 +412,17 @@ int init_listening_tcpv6_connection (int fd, conn_type_t *type, void *extra, int
 //void free_connection_tree_ptr (struct tree_connection *);
 
 struct free_later {
-    void *ptr;
-    void (*free)(void *);
+  void *ptr;
+  void (*free)(void *);
 };
 
 
 struct query_info {
-    struct event_timer ev;
-    struct raw_message raw;
-    int src_type;
-    struct process_id src_pid;
-    void *conn;
+  struct event_timer ev;
+  struct raw_message raw;
+  int src_type;
+  struct process_id src_pid;
+  void *conn;
 };
 
 void free_later_act (void);

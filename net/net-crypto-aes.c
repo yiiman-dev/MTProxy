@@ -52,18 +52,18 @@
 #define MODULE crypto_aes
 
 MODULE_STAT_TYPE {
-int allocated_aes_crypto, allocated_aes_crypto_temp;
+  int allocated_aes_crypto, allocated_aes_crypto_temp;
 };
 
 MODULE_INIT
 
-        MODULE_STAT_FUNCTION
-SB_SUM_ONE_I (allocated_aes_crypto);
-SB_SUM_ONE_I (allocated_aes_crypto_temp);
+MODULE_STAT_FUNCTION
+  SB_SUM_ONE_I (allocated_aes_crypto);
+  SB_SUM_ONE_I (allocated_aes_crypto_temp);
 
-sb_printf (sb,
-"aes_pwd_hash\t%s\n",
-pwd_config_md5);
+  sb_printf (sb,
+    "aes_pwd_hash\t%s\n",
+    pwd_config_md5);
 MODULE_STAT_FUNCTION_END
 
 void fetch_aes_crypto_stat (int *allocated_aes_crypto_ptr, int *allocated_aes_crypto_temp_ptr) {
@@ -85,7 +85,7 @@ int aes_crypto_init (connection_job_t c, void *key_data, int key_data_len) {
   assert (T);
 
   MODULE_STAT->allocated_aes_crypto ++;
-
+  
   T->read_aeskey = evp_cipher_ctx_init (EVP_aes_256_cbc(), D->read_key, D->read_iv, 0);
   T->write_aeskey = evp_cipher_ctx_init (EVP_aes_256_cbc(), D->write_key, D->write_iv, 1);
   CONN_INFO(c)->crypto = T;
@@ -100,7 +100,7 @@ int aes_crypto_ctr128_init (connection_job_t c, void *key_data, int key_data_len
   assert (T);
 
   MODULE_STAT->allocated_aes_crypto ++;
-
+  
   T->read_aeskey = evp_cipher_ctx_init (EVP_aes_256_ctr(), D->read_key, D->read_iv, 1); // NB: is_encrypt == 1 here!
   T->write_aeskey = evp_cipher_ctx_init (EVP_aes_256_ctr(), D->write_key, D->write_iv, 1);
   CONN_INFO(c)->crypto = T;
@@ -205,7 +205,7 @@ int aes_load_pwd_file (const char *filename) {
   }
 
   md5_hex (pwd_config_buf, pwd_config_len, pwd_config_md5);
-
+  
   memcpy (main_secret.secret, pwd_config_buf, r);
   main_secret.secret_len = r;
 
@@ -226,7 +226,7 @@ int aes_generate_nonce (char res[16]) {
 
   md5 ((unsigned char *)rand_buf, 44, (unsigned char *)res);
   return 0;
-}
+} 
 
 
 // str := nonce_server.nonce_client.client_timestamp.server_ip.client_port.("SERVER"/"CLIENT").client_ip.server_port.master_key.nonce_server.[client_ipv6.server_ipv6].nonce_client
@@ -234,9 +234,9 @@ int aes_generate_nonce (char res[16]) {
 // iv  := MD5(str+2)
 
 int aes_create_keys (struct aes_key_data *R, int am_client, const char nonce_server[16], const char nonce_client[16], int client_timestamp,
-                     unsigned server_ip, unsigned short server_port, const unsigned char server_ipv6[16],
-                     unsigned client_ip, unsigned short client_port, const unsigned char client_ipv6[16],
-                     const aes_secret_t *key, const unsigned char *temp_key, int temp_key_len) {
+		     unsigned server_ip, unsigned short server_port, const unsigned char server_ipv6[16], 
+		     unsigned client_ip, unsigned short client_port, const unsigned char client_ipv6[16],
+		     const aes_secret_t *key, const unsigned char *temp_key, int temp_key_len) {
   unsigned char str[16+16+4+4+2+6+4+2+MAX_PWD_LEN+16+16+4+16*2 + 256];
   int i, str_len;
 

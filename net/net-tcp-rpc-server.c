@@ -66,35 +66,35 @@ int tcp_rpcs_default_check_perm (connection_job_t c);
 int tcp_rpcs_init_crypto (connection_job_t c, struct tcp_rpc_nonce_packet *P);
 
 conn_type_t ct_tcp_rpc_server = {
-        .magic = CONN_FUNC_MAGIC,
-        .flags = C_RAWMSG,
-        .title = "rpc_tcp_server",
-        .init_accepted = tcp_rpcs_init_accepted,
-        .parse_execute = tcp_rpcs_parse_execute,
-        .close = tcp_rpcs_close_connection,
-        .flush = tcp_rpc_flush,
-        .write_packet = tcp_rpc_write_packet,
-        .connected = server_failed,
-        .wakeup = tcp_rpcs_wakeup,
-        .alarm = tcp_rpcs_alarm,
-        .crypto_init = aes_crypto_init,
-        .crypto_free = aes_crypto_free,
-        .crypto_encrypt_output = cpu_tcp_aes_crypto_encrypt_output,
-        .crypto_decrypt_input = cpu_tcp_aes_crypto_decrypt_input,
-        .crypto_needed_output_bytes = cpu_tcp_aes_crypto_needed_output_bytes,
+  .magic = CONN_FUNC_MAGIC,
+  .flags = C_RAWMSG,
+  .title = "rpc_tcp_server",
+  .init_accepted = tcp_rpcs_init_accepted,
+  .parse_execute = tcp_rpcs_parse_execute,
+  .close = tcp_rpcs_close_connection,
+  .flush = tcp_rpc_flush,
+  .write_packet = tcp_rpc_write_packet,
+  .connected = server_failed,
+  .wakeup = tcp_rpcs_wakeup,
+  .alarm = tcp_rpcs_alarm,
+  .crypto_init = aes_crypto_init,
+  .crypto_free = aes_crypto_free,
+  .crypto_encrypt_output = cpu_tcp_aes_crypto_encrypt_output,
+  .crypto_decrypt_input = cpu_tcp_aes_crypto_decrypt_input,
+  .crypto_needed_output_bytes = cpu_tcp_aes_crypto_needed_output_bytes,
 };
 
 int tcp_rpcs_default_execute (connection_job_t c, int op, struct raw_message *msg);
 
 struct tcp_rpc_server_functions default_tcp_rpc_server = {
-        .execute = tcp_rpcs_default_execute,
-        .check_ready = server_check_ready,
-        .flush_packet = tcp_rpc_flush_packet,
-        .rpc_wakeup = tcp_rpcs_do_wakeup,
-        .rpc_alarm = tcp_rpcs_do_wakeup,
-        .rpc_check_perm = tcp_rpcs_default_check_perm,
-        .rpc_init_crypto = tcp_rpcs_init_crypto,
-        .rpc_ready = server_noop,
+  .execute = tcp_rpcs_default_execute,
+  .check_ready = server_check_ready,
+  .flush_packet = tcp_rpc_flush_packet,
+  .rpc_wakeup = tcp_rpcs_do_wakeup,
+  .rpc_alarm = tcp_rpcs_do_wakeup,
+  .rpc_check_perm = tcp_rpcs_default_check_perm,
+  .rpc_init_crypto = tcp_rpcs_init_crypto,
+  .rpc_ready = server_noop,
 };
 
 int tcp_rpcs_default_execute (connection_job_t C, int op, struct raw_message *raw) {
@@ -102,10 +102,10 @@ int tcp_rpcs_default_execute (connection_job_t C, int op, struct raw_message *ra
 
   vkprintf (3, "%s: fd=%d, op=%d, len=%d\n", __func__, c->fd, op, raw->total_bytes);
   if (op == RPC_PING && raw->total_bytes == 12) {
-    c->last_response_time = precise_now;
+    c->last_response_time = precise_now;    
     int P[3];
     assert (rwm_fetch_data (raw, P, 12) == 12);
-    P[0] = RPC_PONG;
+    P[0] = RPC_PONG;    
     vkprintf (3, "received ping from " IP_PRINT_STR ":%d (val = %lld)\n", IP_TO_PRINT (c->remote_ip), (int)c->remote_port, *(long long *)(P + 1));
     tcp_rpc_conn_send_data (JOB_REF_CREATE_PASS (C), 12, P);
     return 0;
@@ -116,13 +116,13 @@ int tcp_rpcs_default_execute (connection_job_t C, int op, struct raw_message *ra
 static int tcp_rpcs_process_nonce_packet (connection_job_t C, struct raw_message *msg) {
   struct tcp_rpc_data *D = TCP_RPC_DATA(C);
   union {
-      struct tcp_rpc_nonce_packet s;
-      struct tcp_rpc_nonce_ext_packet x;
-      struct tcp_rpc_nonce_dh_packet dh;
+    struct tcp_rpc_nonce_packet s;
+    struct tcp_rpc_nonce_ext_packet x;
+    struct tcp_rpc_nonce_dh_packet dh;
   } P;
   struct tcp_rpc_nonce_dh_packet *dh = 0;
   int res;
-
+  
   int packet_num = D->in_packet_num;
   int packet_type;
   assert (rwm_fetch_lookup (msg, &packet_type, 4) == 4);
@@ -138,85 +138,85 @@ static int tcp_rpcs_process_nonce_packet (connection_job_t C, struct raw_message
   assert (rwm_fetch_data (msg, &P, packet_len) == packet_len);
 
   switch (P.s.crypto_schema) {
-    case RPC_CRYPTO_NONE:
-      if (packet_len != sizeof (struct tcp_rpc_nonce_packet)) {
-        return -3;
-      }
-          break;
-    case RPC_CRYPTO_AES:
-      if (packet_len != sizeof (struct tcp_rpc_nonce_packet)) {
-        return -3;
-      }
-          break;
-    case RPC_CRYPTO_AES_EXT:
-      if (packet_len < sizeof (struct tcp_rpc_nonce_ext_packet) - 4 * RPC_MAX_EXTRA_KEYS) {
-        return -3;
-      }
-          if (P.x.extra_keys_count < 0 || P.x.extra_keys_count > RPC_MAX_EXTRA_KEYS || packet_len != sizeof (struct tcp_rpc_nonce_ext_packet) + 4 * (P.x.extra_keys_count - RPC_MAX_EXTRA_KEYS)) {
-            return -3;
-          }
-          break;
-    case RPC_CRYPTO_AES_DH:
-      if (packet_len < sizeof (struct tcp_rpc_nonce_dh_packet) - 4 * RPC_MAX_EXTRA_KEYS) {
-        return -3;
-      }
-          if (P.x.extra_keys_count < 0 || P.x.extra_keys_count > RPC_MAX_EXTRA_KEYS || packet_len != sizeof (struct tcp_rpc_nonce_dh_packet) + 4 * (P.x.extra_keys_count - RPC_MAX_EXTRA_KEYS)) {
-            return -3;
-          }
-          break;
-    default:
+  case RPC_CRYPTO_NONE:
+    if (packet_len != sizeof (struct tcp_rpc_nonce_packet)) {
       return -3;
+    }
+    break;
+  case RPC_CRYPTO_AES:
+    if (packet_len != sizeof (struct tcp_rpc_nonce_packet)) {
+      return -3;
+    }
+    break;
+  case RPC_CRYPTO_AES_EXT:
+    if (packet_len < sizeof (struct tcp_rpc_nonce_ext_packet) - 4 * RPC_MAX_EXTRA_KEYS) {
+      return -3;
+    }
+    if (P.x.extra_keys_count < 0 || P.x.extra_keys_count > RPC_MAX_EXTRA_KEYS || packet_len != sizeof (struct tcp_rpc_nonce_ext_packet) + 4 * (P.x.extra_keys_count - RPC_MAX_EXTRA_KEYS)) {
+      return -3;
+    }
+    break;
+  case RPC_CRYPTO_AES_DH:
+    if (packet_len < sizeof (struct tcp_rpc_nonce_dh_packet) - 4 * RPC_MAX_EXTRA_KEYS) {
+      return -3;
+    }
+    if (P.x.extra_keys_count < 0 || P.x.extra_keys_count > RPC_MAX_EXTRA_KEYS || packet_len != sizeof (struct tcp_rpc_nonce_dh_packet) + 4 * (P.x.extra_keys_count - RPC_MAX_EXTRA_KEYS)) {
+      return -3;
+    }
+    break;
+  default:
+    return -3;
   }
 
   switch (P.s.crypto_schema) {
-    case RPC_CRYPTO_NONE:
-      if (P.s.key_select) {
-        return -3;
-      }
-          if (D->crypto_flags & RPCF_ALLOW_UNENC) {
-            D->crypto_flags = RPCF_ALLOW_UNENC;
-          } else {
-            return -5;
-          }
-          break;
-    case RPC_CRYPTO_AES_DH: {
-      dh = (struct tcp_rpc_nonce_dh_packet *)((char *) &P + 4*(P.x.extra_keys_count - RPC_MAX_EXTRA_KEYS));
-      if (!dh_params_select) {
-        init_dh_params ();
-      }
-      if (!dh->dh_params_select || dh->dh_params_select != dh_params_select) {
-        dh = 0;
-      }
+  case RPC_CRYPTO_NONE:
+    if (P.s.key_select) {
+      return -3;
     }
-    case RPC_CRYPTO_AES_EXT:
-      P.s.key_select = select_best_key_signature (P.s.key_select, P.x.extra_keys_count, P.x.extra_key_select);
-    case RPC_CRYPTO_AES:
-      if (!P.s.key_select || !select_best_key_signature (P.s.key_select, 0, 0)) {
-        if (D->crypto_flags & RPCF_ALLOW_UNENC) {
-          D->crypto_flags = RPCF_ALLOW_UNENC;
-          break;
-        }
-        return -3;
-      }
-          if (!(D->crypto_flags & RPCF_ALLOW_ENC)) {
-            if (D->crypto_flags & RPCF_ALLOW_UNENC) {
-              D->crypto_flags = RPCF_ALLOW_UNENC;
-              break;
-            }
-            return -5;
-          }
-          D->nonce_time = (now ? now : time (0));
-          if (abs (P.s.crypto_ts - D->nonce_time) > 30) {
-            return -6;	//less'om
-          }
-          D->crypto_flags &= ~RPCF_ALLOW_UNENC;
-          break;
-    default:
+    if (D->crypto_flags & RPCF_ALLOW_UNENC) {
+      D->crypto_flags = RPCF_ALLOW_UNENC;
+    } else {
+      return -5;
+    }
+    break;
+  case RPC_CRYPTO_AES_DH: {
+    dh = (struct tcp_rpc_nonce_dh_packet *)((char *) &P + 4*(P.x.extra_keys_count - RPC_MAX_EXTRA_KEYS));
+    if (!dh_params_select) {
+      init_dh_params ();
+    }
+    if (!dh->dh_params_select || dh->dh_params_select != dh_params_select) {
+      dh = 0;
+    }
+  }
+  case RPC_CRYPTO_AES_EXT:
+    P.s.key_select = select_best_key_signature (P.s.key_select, P.x.extra_keys_count, P.x.extra_key_select);
+  case RPC_CRYPTO_AES:
+    if (!P.s.key_select || !select_best_key_signature (P.s.key_select, 0, 0)) {
       if (D->crypto_flags & RPCF_ALLOW_UNENC) {
         D->crypto_flags = RPCF_ALLOW_UNENC;
         break;
       }
-          return -4;
+      return -3;
+    }
+    if (!(D->crypto_flags & RPCF_ALLOW_ENC)) {
+      if (D->crypto_flags & RPCF_ALLOW_UNENC) {
+        D->crypto_flags = RPCF_ALLOW_UNENC;
+        break;
+      }
+      return -5;
+    }
+    D->nonce_time = (now ? now : time (0));
+    if (abs (P.s.crypto_ts - D->nonce_time) > 30) {
+      return -6;	//less'om
+    }
+    D->crypto_flags &= ~RPCF_ALLOW_UNENC;
+    break;
+  default:
+    if (D->crypto_flags & RPCF_ALLOW_UNENC) {
+      D->crypto_flags = RPCF_ALLOW_UNENC;
+      break;
+    }
+    return -4;
   }
 
   if ((D->crypto_flags & (RPCF_REQ_DH | RPCF_ALLOW_ENC)) == (RPCF_REQ_DH | RPCF_ALLOW_ENC) && !dh) {
@@ -271,7 +271,7 @@ static int tcp_rpcs_process_handshake_packet (connection_job_t C, struct raw_mes
       PID.ip = get_my_ipv4 ();
     }
   }
-
+  
   int packet_num = D->in_packet_num;
   int packet_type;
   assert (rwm_fetch_lookup (msg, &packet_type, 4) == 4);
@@ -288,7 +288,7 @@ static int tcp_rpcs_process_handshake_packet (connection_job_t C, struct raw_mes
   memcpy (&D->remote_pid, &P.sender_pid, sizeof (struct process_id));
   if (!matches_pid (&PID, &P.peer_pid) && !(TCP_RPCS_FUNC(C)->mode_flags & TCP_RPC_IGNORE_PID)) {
     vkprintf (1, "PID mismatch during handshake: local %08x:%d:%d:%d, remote %08x:%d:%d:%d\n",
-              PID.ip, PID.port, PID.pid, PID.utime, P.peer_pid.ip, P.peer_pid.port, P.peer_pid.pid, P.peer_pid.utime);
+                 PID.ip, PID.port, PID.pid, PID.utime, P.peer_pid.ip, P.peer_pid.port, P.peer_pid.pid, P.peer_pid.utime);
     tcp_rpcs_send_handshake_error_packet (C, -4);
     return -4;
   }
@@ -305,7 +305,7 @@ static int tcp_rpcs_process_handshake_packet (connection_job_t C, struct raw_mes
 int tcp_rpcs_parse_execute (connection_job_t C) {
   struct connection_info *c = CONN_INFO (C);
 
-  vkprintf (4, "%s. in_total_bytes = %d\n", __func__, c->in.total_bytes);
+  vkprintf (4, "%s. in_total_bytes = %d\n", __func__, c->in.total_bytes);  
   struct tcp_rpc_data *D = TCP_RPC_DATA(C);
   int len;
 
@@ -316,7 +316,7 @@ int tcp_rpcs_parse_execute (connection_job_t C) {
     if (c->flags & C_STOPPARSE) {
       return NEED_MORE_BYTES;
     }
-    len = c->in.total_bytes;
+    len = c->in.total_bytes; 
     if (len <= 0) {
       return NEED_MORE_BYTES;
     }
@@ -339,7 +339,7 @@ int tcp_rpcs_parse_execute (connection_job_t C) {
         memset (c->custom_data, 0, sizeof (c->custom_data));
         c->type = TCP_RPCS_FUNC(C)->http_fallback_type;
         c->extra = TCP_RPCS_FUNC(C)->http_fallback_extra;
-
+        
         if (c->type->init_accepted (C) < 0) {
           vkprintf (1, "http init_accepted() returns error for connection %d\n", c->fd);
           fail_connection (C, -33);
@@ -358,12 +358,12 @@ int tcp_rpcs_parse_execute (connection_job_t C) {
       fail_connection (C, -1);
       return 0;
     }
-
+    
     if (packet_len == 4) {
       assert (rwm_skip_data (&c->in, 4) == 4);
       continue;
     }
-
+    
     if (packet_len < 16) {
       vkprintf (1, "error while parsing packet: bad packet length %d\n", packet_len);
       fail_connection (C, -1);
@@ -457,7 +457,7 @@ int tcp_rpcs_wakeup (connection_job_t C) {
   if (c->out_p.total_bytes > 0) {
     __sync_fetch_and_or (&c->flags, C_WANTWR);
   }
-
+  
   //c->generation = ++conn_generation;
   c->pending_queries = 0;
   return 0;
@@ -467,7 +467,7 @@ int tcp_rpcs_alarm (connection_job_t C) {
   struct connection_info *c = CONN_INFO (C);
 
   notification_event_insert_tcp_conn_alarm (C);
-
+  
   if (c->out_p.total_bytes > 0) {
     __sync_fetch_and_or (&c->flags, C_WANTWR);
   }
@@ -491,7 +491,7 @@ int tcp_rpcs_do_wakeup (connection_job_t c) {
 }
 
 
-int tcp_rpcs_init_accepted (connection_job_t C) {
+int tcp_rpcs_init_accepted (connection_job_t C) {  
   struct connection_info *c = CONN_INFO (C);
 
   c->last_query_sent_time = precise_now;
@@ -515,7 +515,7 @@ int tcp_rpcs_init_accepted (connection_job_t C) {
 
   TCP_RPC_DATA(C)->in_packet_num = -2;
   TCP_RPC_DATA(C)->out_packet_num = -2;
-
+  
   return 0;
 }
 
@@ -538,12 +538,12 @@ int tcp_rpcs_init_fake_crypto (connection_job_t c) {
   memset (&buf, 0, sizeof (buf));
   buf.type = RPC_NONCE;
   buf.crypto_schema = RPC_CRYPTO_NONE;
-
+  
   assert ((TCP_RPC_DATA(c)->crypto_flags & (RPCF_ALLOW_ENC | RPCF_ENC_SENT)) == 0);
   TCP_RPC_DATA(c)->crypto_flags |= RPCF_ENC_SENT;
-
+ 
   tcp_rpc_conn_send_data_init (c, sizeof (buf), &buf);
-
+ 
   return 1;
 }
 
@@ -576,9 +576,9 @@ int tcp_rpcs_init_crypto (connection_job_t C, struct tcp_rpc_nonce_packet *P) {
   aes_secret_t *secret = &main_secret;
 
   union {
-      struct tcp_rpc_nonce_packet s;
-      struct tcp_rpc_nonce_ext_packet x;
-      struct tcp_rpc_nonce_dh_packet dh;
+    struct tcp_rpc_nonce_packet s;
+    struct tcp_rpc_nonce_ext_packet x;
+    struct tcp_rpc_nonce_dh_packet dh;
   } buf;
 
   struct tcp_rpc_nonce_dh_packet *old_dh = 0, *new_dh = 0;
@@ -635,7 +635,7 @@ int tcp_rpcs_init_crypto (connection_job_t C, struct tcp_rpc_nonce_packet *P) {
 
   assert ((D->crypto_flags & (RPCF_ALLOW_ENC | RPCF_ENC_SENT)) == RPCF_ALLOW_ENC);
   D->crypto_flags |= RPCF_ENC_SENT;
-
+ 
   tcp_rpc_conn_send_data_init (C, buf_len, &buf);
 
 

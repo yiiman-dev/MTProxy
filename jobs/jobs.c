@@ -81,10 +81,10 @@ MODULE_INIT
 MODULE_STAT_FUNCTION
   int uptime = time (0) - start_time;
   double tm = get_utime_monotonic ();
-  double tot_recent_idle[16];//tokapps 16 to 300
-  double tot_recent_q[16];//tokapps 16 to 300
-  double tot_idle[16];//tokapps 16 to 300
-  int tot_threads[16];//tokapps 16 to 300
+  double tot_recent_idle[16];
+  double tot_recent_q[16];
+  double tot_idle[16];
+  int tot_threads[16];
   memset (tot_recent_idle, 0, sizeof (tot_recent_idle));
   memset (tot_recent_q, 0, sizeof (tot_recent_q));
   memset (tot_idle, 0, sizeof (tot_idle));
@@ -114,7 +114,7 @@ MODULE_STAT_FUNCTION
 
   
   sb_printf (sb, "thread_average_idle_percent\t");
-  for (i = 0; i < 16; i++) {//tokapps from 16 to 300
+  for (i = 0; i < 16; i++) {
     if (i != 0) {
       sb_printf (sb, " ");
       if (!(i & 3)) {
@@ -126,7 +126,7 @@ MODULE_STAT_FUNCTION
   sb_printf (sb, "\n");
   
   sb_printf (sb, "thread_recent_idle_percent\t");
-  for (i = 0; i < 16; i++) {//tokapps from 16 to 300
+  for (i = 0; i < 16; i++) {
     if (i != 0) {
       sb_printf (sb, " ");
       if (!(i & 3)) {
@@ -138,7 +138,7 @@ MODULE_STAT_FUNCTION
   sb_printf (sb, "\n");
   
   sb_printf (sb, "tot_threads\t");
-  for (i = 0; i < 16; i++) {//tokapps from 16 to 300
+  for (i = 0; i < 16; i++) {
     if (i != 0) {
       sb_printf (sb, " ");
       if (!(i & 3)) {
@@ -149,12 +149,12 @@ MODULE_STAT_FUNCTION
   }
   sb_printf (sb, "\n");
 
-  double jb_cpu_load_u[16];//tokapps 16 to 300
-  double jb_cpu_load_s[16];//tokapps 16 to 300
-  double jb_cpu_load_t[16];//tokapps 16 to 300
-  double jb_cpu_load_ru[16];//tokapps 16 to 300
-  double jb_cpu_load_rs[16];//tokapps 16 to 300
-  double jb_cpu_load_rt[16];//tokapps 16 to 300
+  double jb_cpu_load_u[16];
+  double jb_cpu_load_s[16];
+  double jb_cpu_load_t[16];
+  double jb_cpu_load_ru[16];
+  double jb_cpu_load_rs[16];
+  double jb_cpu_load_rt[16];
   memset (jb_cpu_load_u, 0, sizeof (jb_cpu_load_u));
   memset (jb_cpu_load_s, 0, sizeof (jb_cpu_load_u));
   memset (jb_cpu_load_t, 0, sizeof (jb_cpu_load_u));
@@ -186,7 +186,7 @@ MODULE_STAT_FUNCTION
       jb_cpu_load_rt[class] += JobThreadsStats[i].recent_user + JobThreadsStats[i].recent_sys;
     }
   }
-  for (i = 0; i < 16; i++) {//tokapps 16 to 300
+  for (i = 0; i < 16; i++) {
     tot_cpu_load_u += jb_cpu_load_u[i];
     tot_cpu_load_s += jb_cpu_load_s[i];
     tot_cpu_load_t += jb_cpu_load_t[i];
@@ -244,7 +244,7 @@ MODULE_STAT_FUNCTION
     default:
       assert (0);
     }
-    for (i = 0; i < 16; i++) {//tokapps 16 to 300
+    for (i = 0; i < 16; i++) {
       if (i != 0) {
         sb_printf (sb, " ");
         if (!(i & 3)) {
@@ -285,7 +285,7 @@ MODULE_STAT_FUNCTION
 
   SB_SUM_ONE_I (job_timers_allocated);
   
-  int jb_running[16], jb_active = 0;//from 16 to 300
+  int jb_running[16], jb_active = 0;
   long long jb_created = 0;
   memset (jb_running, 0, sizeof (jb_running));
   for (i = 1; i <= max_job_thread_id; i++) {
@@ -306,7 +306,7 @@ MODULE_STAT_FUNCTION
   );
   
   sb_printf (sb, "jobs_running\t");
-  for (i = 0; i < 16; i++) {//tokapps from 16 to 300
+  for (i = 0; i < 16; i++) {
     if (i != 0) {
       sb_printf (sb, " ");
       if (!(i & 3)) {

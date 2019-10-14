@@ -54,12 +54,12 @@ int cpu_tcp_server_writer (connection_job_t C) /* {{{ */ {
   assert_net_cpu_thread ();
 
   struct connection_info *c = CONN_INFO (C);
-
+  
   int stop = 0;
   if (c->status == conn_write_close) {
     stop = 1;
   }
-
+  
   while (1) {
     struct raw_message *raw = mpq_pop_nw (c->out_queue, 4);
     if (!raw) { break; }
@@ -67,7 +67,7 @@ int cpu_tcp_server_writer (connection_job_t C) /* {{{ */ {
     c->type->write_packet (C, raw);
     free (raw);
   }
-
+  
   c->type->flush (C);
 
   struct raw_message *raw = malloc (sizeof (*raw));
@@ -80,8 +80,8 @@ int cpu_tcp_server_writer (connection_job_t C) /* {{{ */ {
     *raw = c->out;
     rwm_init (&c->out, 0);
   }
-
-  if (raw->total_bytes && c->io_conn) {
+ 
+  if (raw->total_bytes && c->io_conn) {        
     mpq_push_w (SOCKET_CONN_INFO(c->io_conn)->out_packet_queue, raw, 0);
     if (stop) {
       __sync_fetch_and_or (&SOCKET_CONN_INFO(c->io_conn)->flags, C_STOPWRITE);
@@ -111,13 +111,13 @@ int cpu_tcp_server_reader (connection_job_t C) /* {{{ */ {
     }
     free (raw);
   }
-
+        
   if (c->crypto) {
     assert (c->type->crypto_decrypt_input (C) >= 0);
   }
 
   int r = c->in.total_bytes;
-
+        
   int s = c->skip_bytes;
 
   if (c->type->data_received) {
@@ -142,7 +142,7 @@ int cpu_tcp_server_reader (connection_job_t C) /* {{{ */ {
     c->skip_bytes = s += r1;
 
     vkprintf (2, "skipped %d bytes, %d more to skip\n", r1, -s);
-
+      
     if (s) {
       return 0;
     }
@@ -168,7 +168,7 @@ int cpu_tcp_server_reader (connection_job_t C) /* {{{ */ {
     }
 
     int res = c->type->parse_execute (C);
-
+    
     // 0 - ok/done, >0 - need that much bytes, <0 - skip bytes, or NEED_MORE_BYTES
     if (!res) {
     } else if (res != NEED_MORE_BYTES) {

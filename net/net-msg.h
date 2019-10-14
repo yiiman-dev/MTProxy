@@ -54,18 +54,18 @@
  */
 
 struct msg_part {
-    // fields inherited from msg_buffer
-    //struct msg_buffers_chunk *chunk;
+  // fields inherited from msg_buffer
+  //struct msg_buffers_chunk *chunk;
 #ifndef _LP64
-    int resvd;
+  int resvd;
 #endif
-    int refcnt;
-    int magic;
-    // fields specific to msg_part
-    struct msg_part *next;
-    struct msg_buffer *part;
-    int offset;   // data offset inside part->data
-    int data_end; // end of data offset inside part->data
+  int refcnt;
+  int magic;
+  // fields specific to msg_part
+  struct msg_part *next;
+  struct msg_buffer *part;
+  int offset;   // data offset inside part->data
+  int data_end; // end of data offset inside part->data
 };
 
 extern int rwm_total_msg_parts;
@@ -87,11 +87,11 @@ struct msg_part *new_msg_part (struct msg_part *neighbor, struct msg_buffer *X);
 #define        RM_PREPEND_RESERVE        128
 
 struct raw_message {
-    struct msg_part *first, *last;        // 'last' doesn't increase refcnt of pointed msg_part
-    int total_bytes;        // bytes in the chain (extra bytes ignored even if present)
-    int magic;                // one of RM_INIT_MAGIC, RM_TMP_MAGIC
-    int first_offset;        // offset of first used byte inside first buffer data
-    int last_offset;        // offset after last used byte inside last buffer data
+  struct msg_part *first, *last;        // 'last' doesn't increase refcnt of pointed msg_part
+  int total_bytes;        // bytes in the chain (extra bytes ignored even if present)
+  int magic;                // one of RM_INIT_MAGIC, RM_TMP_MAGIC
+  int first_offset;        // offset of first used byte inside first buffer data
+  int last_offset;        // offset after last used byte inside last buffer data
 };
 
 /* NB: struct raw_message itself is never allocated or freed by the following functions since 

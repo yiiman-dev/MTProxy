@@ -41,7 +41,6 @@ DEPENDENCE_NORM	:=	$(subst ${OBJ}/,${DEP}/,$(patsubst %.o,%.d,${OBJECTS}))
 
 LIB_OBJS_NORMAL := \
 	${OBJ}/common/crc32c.o \
-	${OBJ}/common/log.o \
 	${OBJ}/common/pid.o \
 	${OBJ}/common/sha1.o \
 	${OBJ}/common/sha256.o \
