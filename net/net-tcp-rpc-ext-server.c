@@ -147,11 +147,11 @@ int tcp_proxy_pass_write_packet (connection_job_t C, struct raw_message *raw) {
 
 int tcp_rpcs_default_execute (connection_job_t c, int op, struct raw_message *msg);
 
-static unsigned char ext_secret[16][16];
+static unsigned char ext_secret[4000][16];
 static int ext_secret_cnt = 0;
 
-void tcp_rpcs_set_ext_secret (unsigned char secret[16]) {
-  assert (ext_secret_cnt < 16);
+void tcp_rpcs_set_ext_secret (unsigned char secret[4000]) {
+  assert (ext_secret_cnt < 4000);
   memcpy (ext_secret[ext_secret_cnt ++], secret, 16);
 }
 

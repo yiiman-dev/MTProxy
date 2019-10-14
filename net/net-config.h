@@ -22,7 +22,7 @@
 
 #include "net/net-crypto-aes.h"
 
-#define MAX_PWD_CONFIG_LEN	16384
+#define MAX_PWD_CONFIG_LEN	163840
 
 #define RPCF_ALLOW_UNENC        1
 #define RPCF_ALLOW_ENC          2
