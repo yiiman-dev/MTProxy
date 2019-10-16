@@ -27,7 +27,7 @@
 #define MAX_CFG_CLUSTERS	1024
 #define	MAX_CFG_TARGETS		4096
 #define MAX_CLUSTER_TARGETS	1024
-
+//static char secret_connection_limit[4000];//tokapps created
 struct mf_cluster {
   int targets_num;  // 1 for old-fashioned
   int write_targets_num;

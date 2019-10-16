@@ -2138,6 +2138,7 @@ void check_special_connections_overflow(void) {
 }
 
 void cron(void) {
+
     check_children_status();
     compute_stats_sum();
     check_special_connections_overflow();
@@ -2198,7 +2199,9 @@ void mtfront_sigusr1_handler(void) {
  *		MAIN
  *
  */
-
+/**
+ * if user not input any option for executed file, this function will be call and end program
+ */
 void usage(void) {
     printf("usage: %s [-v] [-6] [-p<port>] [-H<http-port>{,<http-port>}] [-M<workers>] [-u<username>] [-b<backlog>] [-c<max-conn>] [-l<log-name>] [-W<window-size>] <config-file>\n",
            progname);
@@ -2276,9 +2279,10 @@ int f_parse_option(int val) {
                 usage();
             }
 
-            unsigned char secret[4000];
+            unsigned char secret[32];//changed from 16 to 32
             int i;
             unsigned char b = 0;
+
             for (i = 0; i < 32; i++) {
                 if (optarg[i] >= '0' && optarg[i] <= '9') {
                     b = b * 16 + optarg[i] - '0';
@@ -2327,7 +2331,9 @@ void mtfront_prepare_parse_options(void) {
     parse_option("ping-interval", required_argument, 0, 'T',
                  "sets ping interval in second for local TCP connections (default %.3lf)", PING_INTERVAL);
 }
-
+/**
+ * this function will parse mtproto options
+ */
 void mtfront_parse_extra_args(int argc, char *argv[]) /* {{{ */ {
     if (argc != 1) {
         usage();

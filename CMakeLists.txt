@@ -1,8 +1,9 @@
 # cmake_minimum_required(VERSION <specify CMake version here>)
 project(MTProxy_master)
 
+set(CMAKE_LEGACY_CYGWIN_WIN32 1)
 set(CMAKE_CXX_STANDARD 14)
-
+cmake_minimum_required(VERSION 3.12)
 include_directories(.)
 include_directories(MTProxy-master)
 include_directories(common)

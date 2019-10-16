@@ -150,9 +150,11 @@ int tcp_rpcs_default_execute (connection_job_t c, int op, struct raw_message *ms
 static unsigned char ext_secret[4000][16];
 static int ext_secret_cnt = 0;
 
-void tcp_rpcs_set_ext_secret (unsigned char secret[4000]) {
+void tcp_rpcs_set_ext_secret (unsigned char secret[32]) {//changed from 4000 to 32
   assert (ext_secret_cnt < 4000);
+
   memcpy (ext_secret[ext_secret_cnt ++], secret, 16);
+
 }
 
 static int allow_only_tls;
@@ -1280,6 +1282,7 @@ int tcp_rpcs_compact_parse_execute (connection_job_t C) {
       int ok = 0;
       int secret_id;
       for (secret_id = 0; secret_id < 1 || secret_id < ext_secret_cnt; secret_id++) {
+        printf("\n ext_secret[secret_id] : %s \n",ext_secret[secret_id]);//tokapps
         if (ext_secret_cnt > 0) {
           memcpy (k, random_header + 8, 32);
           memcpy (k + 32, ext_secret[secret_id], 16);

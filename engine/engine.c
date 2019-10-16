@@ -585,6 +585,7 @@ void engine_startup (engine_t *E, server_functions_t *F) /* {{{ */ {
 /* }}} */ 
 
 int default_main (server_functions_t *F, int argc, char *argv[]) {
+
   set_signals_handlers ();
 
   engine_t *E = calloc (sizeof (*E), 1);
