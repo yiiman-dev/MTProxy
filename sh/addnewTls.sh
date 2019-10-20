@@ -83,7 +83,7 @@ SECRET="$(hexdump -vn "16" -e ' /1 "%02x"'  /dev/urandom)"
 
 
           SECRET=${SECRET:1:31}
-          SECRET="ee""$1$SECRET""746f6b617070732e6972"
+
 #          echo "$SECRET"
       SECRET_ARY+=("$SECRET")
       #Add secret to config
@@ -108,4 +108,5 @@ SECRET="$(hexdump -vn "16" -e ' /1 "%02x"'  /dev/urandom)"
       fi
 #      echo
 #      echo "You can now connect to your server with this secret with this link:"
-      echo "dd$SECRET"
+      SECRET="ee""$1$SECRET""746f6b617070732e6972"
+      echo "$SECRET"
