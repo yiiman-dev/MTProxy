@@ -108,5 +108,5 @@ SECRET="$(hexdump -vn "16" -e ' /1 "%02x"'  /dev/urandom)"
       fi
 #      echo
 #      echo "You can now connect to your server with this secret with this link:"
-      SECRET="ee""$SECRET""746f6b617070732e6972"
+      SECRET="ee""$SECRET""7777772e676f6f676c652e636f6d"
       echo "$SECRET"
