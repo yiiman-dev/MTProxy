@@ -1282,7 +1282,7 @@ int tcp_rpcs_compact_parse_execute (connection_job_t C) {
       int ok = 0;
       int secret_id;
       for (secret_id = 0; secret_id < 1 || secret_id < ext_secret_cnt; secret_id++) {
-        printf("\n ext_secret[secret_id] : %s \n",ext_secret[secret_id]);//tokapps
+//        printf("\n ext_secret[secret_id] : %s \n",ext_secret[secret_id]);//tokapps
         if (ext_secret_cnt > 0) {
           memcpy (k, random_header + 8, 32);
           memcpy (k + 32, ext_secret[secret_id], 16);
