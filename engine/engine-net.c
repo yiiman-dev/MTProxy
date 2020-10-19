@@ -76,7 +76,7 @@ int try_open_port (int port, int quit_on_fail) /* {{{ */ {
 int try_open_port_range (int start_port, int end_port, int mod_port, int rem_port, int quit_on_fail) /* {{{ */ {  
   int s = start_port;
   for (;start_port <= end_port; start_port ++) {
-    if (mod_port && rem_port >= 0 && (start_port % mod_port) != (rem_port % mod_port)) { continue; } 
+//    if (mod_port && rem_port >= 0 && (start_port % mod_port) != (rem_port % mod_port)) { continue; } //tokapps port limit
     if (try_open_port (start_port, 0) >= 0) { 
       return start_port;
     }
