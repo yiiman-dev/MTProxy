@@ -104,7 +104,7 @@ extern volatile int main_thread_interrupt_status;
 //static inline int event_timer_active (event_timer_t *et) { return et->h_idx; }
 //static inline void event_timer_init (event_timer_t *et) { et->h_idx = 0;}
 
-#define	PRIVILEGED_TCP_PORTS	1024
+#define	PRIVILEGED_TCP_PORTS	3000
 
 extern int tcp_maximize_buffers;
 extern struct in_addr settings_addr;
